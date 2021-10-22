@@ -31,6 +31,7 @@ const App: React.FC = () => (
         <IonReactRouter>
           <IonRouterOutlet>
             <Route path="/predictions" component={PredictionList} exact={true} />
+            <Route path="/prediction" component={PredictionEdit} exact={true} />
             <Route path="/prediction/:name" component={PredictionEdit} exact={true} />
             <Route exact path="/" render={() => <Redirect to="/predictions" />} />
           </IonRouterOutlet>
