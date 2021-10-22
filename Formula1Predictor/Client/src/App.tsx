@@ -20,14 +20,14 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
-import { ItemProvider } from './ItemProvider';
+import { PredictionProvider } from './PredictionProvider';
 import React from "react";
 import PredictionList from "./PredictionList";
 import PredictionEdit from "./PredictionEdit";
 
 const App: React.FC = () => (
     <IonApp>
-      <ItemProvider>
+      <PredictionProvider>
         <IonReactRouter>
           <IonRouterOutlet>
             <Route path="/predictions" component={PredictionList} exact={true} />
@@ -36,7 +36,7 @@ const App: React.FC = () => (
             <Route exact path="/" render={() => <Redirect to="/predictions" />} />
           </IonRouterOutlet>
         </IonReactRouter>
-      </ItemProvider>
+      </PredictionProvider>
     </IonApp>
 );
 

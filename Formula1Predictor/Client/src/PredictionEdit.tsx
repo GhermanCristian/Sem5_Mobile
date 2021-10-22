@@ -10,12 +10,9 @@ import {
     IonTitle,
     IonToolbar
 } from '@ionic/react';
-import {getLogger} from './core';
-import {ItemContext} from './ItemProvider';
+import {ItemContext} from './PredictionProvider';
 import {RouteComponentProps} from 'react-router';
 import {Prediction} from './Prediction';
-
-const log = getLogger('PredictionEdit');
 
 interface PredictionEditProps extends RouteComponentProps<{
     name?: string;
@@ -23,26 +20,24 @@ interface PredictionEditProps extends RouteComponentProps<{
 }
 
 const PredictionEdit: React.FC<PredictionEditProps> = ({history, match}) => {
-    const {items, saving, savingError, saveItem} = useContext(ItemContext);
+    const {predictions, saving, savingError, savePrediction} = useContext(ItemContext);
     const [text, setText] = useState('');
     const [item, setItem] = useState<Prediction>();
 
     useEffect(() => {
-        log('useEffect');
         const routeName = match.params.name || '';
-        const item = items?.find(it => it.name === routeName);
+        const item = predictions?.find(it => it.name === routeName);
         setItem(item);
         if (item) {
             setText(item.text);
         }
-    }, [match.params.name, items]);
+    }, [match.params.name, predictions]);
 
     const handleSave = () => {
         const editedItem = item ? {...item, text} : {text};
-        saveItem && saveItem(editedItem).then(() => history.goBack());
+        savePrediction && savePrediction(editedItem).then(() => history.goBack());
     };
 
-    log('render');
     return (
         <IonPage>
             <IonHeader>
