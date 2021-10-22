@@ -10,7 +10,7 @@ import {
     IonTitle,
     IonToolbar
 } from '@ionic/react';
-import {getLogger} from '../core';
+import {getLogger} from './core';
 import {ItemContext} from './ItemProvider';
 import {RouteComponentProps} from 'react-router';
 import {Prediction} from './Prediction';

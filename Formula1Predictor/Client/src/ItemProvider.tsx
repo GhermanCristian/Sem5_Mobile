@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useReducer} from 'react';
 import PropTypes from 'prop-types';
-import {getLogger} from '../core';
+import {getLogger} from './core';
 import {Prediction} from './Prediction';
 import {createPrediction, getPredictions, newWebSocket, updatePrediction} from './itemApi';
 

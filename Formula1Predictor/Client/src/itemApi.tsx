@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {getLogger} from '../core';
+import {getLogger} from './core';
 import {Prediction} from './Prediction';
 
 const log = getLogger('predictionApi');

@@ -13,7 +13,7 @@ import {
 } from '@ionic/react';
 import {add} from 'ionicons/icons';
 import PredictionListItem from './PredictionListItem';
-import {getLogger} from '../core';
+import {getLogger} from './core';
 import {ItemContext} from './ItemProvider';
 
 const log = getLogger('PredictionList');

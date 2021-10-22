@@ -20,9 +20,10 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
-import { ItemProvider } from './todo/ItemProvider';
-import {PredictionEdit, PredictionList} from "./todo";
+import { ItemProvider } from './ItemProvider';
 import React from "react";
+import PredictionList from "./PredictionList";
+import PredictionEdit from "./PredictionEdit";
 
 const App: React.FC = () => (
     <IonApp>
