@@ -28,9 +28,16 @@ app.use(async (context, next) => {
     }
 });
 
+const RACE_NAMES = ["Bahrain", "Imola", "Portugal", "Barcelona", "Monaco", "Baku", "France", "Austria", "Styria", "Silverstone", "Hungaroring",
+    "Spa", "Zandvoort", "Monza", "Sochi", "Turkey", "COTA", "Mexico", "Interlagos", "Qatar", "Jeddah", "AbuDhabi"];
+const DRIVER_NAMES = ["Hamilton", "Bottas", "Verstappen", "Perez", "Sainz", "Leclerc", "Norris", "Ricciardo", "Vettel", "Stroll", "Alonso", "Ocon", "Gasly",
+    "Tsunoda", "Russell", "Latifi", "Raikkonen", "Giovinazzi", "Schumacher", "Mazepin"]
+const CURRENT_SEASON = new Date().getFullYear();
+const CURRENT_RACE = Math.floor(Math.random() * 22);
 const predictions = [];
-for (let i = 0; i < 3; i++) {
-    predictions.push(new Prediction({name: `prediction${i}`, text: `prediction ${i}`, date: new Date(Date.now() + i)}));
+for (let i = 0; i < CURRENT_RACE - 1; i++) {
+    let winner = DRIVER_NAMES[Math.floor(Math.random() * DRIVER_NAMES.length)];
+    predictions.push(new Prediction({name: RACE_NAMES[i]+CURRENT_SEASON, text: `Winner: ${winner}`, date: new Date(Date.now() + i)}));
 }
 let lastUpdated = predictions[predictions.length - 1].date;
 
@@ -78,7 +85,7 @@ const createPrediction = async (context) => {
         return;
     }
 
-    prediction.name = "name"+Math.floor(Math.random() * 100);
+    prediction.name = RACE_NAMES[predictions.length % 22]+CURRENT_SEASON;
     prediction.date = new Date();
     predictions.push(prediction);
 

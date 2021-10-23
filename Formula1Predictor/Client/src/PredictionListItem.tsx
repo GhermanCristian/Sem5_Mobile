@@ -9,7 +9,7 @@ interface PredictionExt extends Prediction {
 const PredictionListItem: React.FC<PredictionExt> = ({name, text, onEdit}) => {
     return (
         <IonItem onClick={() => onEdit(name)}>
-            <IonLabel>{text}</IonLabel>
+            <IonLabel>{name} - {text.substring(0, 18)}</IonLabel>
         </IonItem>
     );
 };

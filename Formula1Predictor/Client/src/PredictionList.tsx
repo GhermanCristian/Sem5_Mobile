@@ -30,7 +30,7 @@ const PredictionList: React.FC<RouteComponentProps> = ({history}) => {
                     <IonList>
                         {predictions.map(({name, text}) =>
                             <PredictionListItem key={name} name={name} text={text}
-                                  onEdit={name => history.push(`/prediction/${name}`)}/>)}
+                                                onEdit={name => history.push(`/prediction/${name}`)}/>)}
                     </IonList>
                 )}
                 {fetchingError && (
