@@ -33,13 +33,12 @@ const RACE_NAMES = ["Bahrain", "Imola", "Portugal", "Barcelona", "Monaco", "Baku
 const DRIVER_NAMES = ["Hamilton", "Bottas", "Verstappen", "Perez", "Sainz", "Leclerc", "Norris", "Ricciardo", "Vettel", "Stroll", "Alonso", "Ocon", "Gasly",
     "Tsunoda", "Russell", "Latifi", "Raikkonen", "Giovinazzi", "Schumacher", "Mazepin"]
 const CURRENT_SEASON = new Date().getFullYear();
-const CURRENT_RACE = Math.floor(Math.random() * 22);
+const CURRENT_RACE = Math.floor(Math.random() * Math.floor(RACE_NAMES.length / 2));
 const predictions = [];
 for (let i = 0; i < CURRENT_RACE - 1; i++) {
     let winner = DRIVER_NAMES[Math.floor(Math.random() * DRIVER_NAMES.length)];
-    predictions.push(new Prediction({name: RACE_NAMES[i]+CURRENT_SEASON, text: `Winner: ${winner}`, date: new Date(Date.now() + i)}));
+    predictions.push(new Prediction({name: RACE_NAMES[i]+CURRENT_SEASON, text: `Winner: ${winner}`}));
 }
-let lastUpdated = predictions[predictions.length - 1].date;
 
 const broadcast = data =>
     webSocketServer.clients.forEach(client => {
@@ -51,14 +50,6 @@ const broadcast = data =>
 const router = new Router();
 
 router.get('/prediction', context => {
-    const ifModifiedSince = context.request.get('If-Modified-Since');
-
-    if (ifModifiedSince && new Date(ifModifiedSince).getTime() >= lastUpdated.getTime() - lastUpdated.getMilliseconds()) {
-        context.response.status = 304; // NOT MODIFIED
-        return;
-    }
-
-    context.response.set('Last-Modified', lastUpdated.toUTCString());
     context.response.body = predictions;
     context.response.status = 200;
 });
@@ -123,7 +114,6 @@ const updatePrediction = async (context) => {
     }
 
     predictions[index] = prediction;
-    lastUpdated = new Date();
     context.response.body = prediction;
     context.response.status = 200; // OK
     broadcast({event: 'updated', payload: {prediction}});
