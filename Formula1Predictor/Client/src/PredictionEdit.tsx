@@ -6,7 +6,7 @@ import {
     IonHeader,
     IonInput, IonLabel,
     IonLoading,
-    IonPage,
+    IonPage, IonRow,
     IonTitle,
     IonToolbar
 } from '@ionic/react';
@@ -54,8 +54,10 @@ const PredictionEdit: React.FC<PredictionEditProps> = ({history, match}) => {
                 </IonToolbar>
             </IonHeader>
             <IonContent>
+                <IonLabel>Name - {prediction?.name}</IonLabel>
+                <IonRow style={{height: "15px"}}></IonRow>
                 <IonLabel>Content</IonLabel>
-                <IonInput placeholder="Enter prediction content" value={text} onIonChange={elem => setText(elem.detail.value || '')}/>
+                <IonInput style={{backgroundColor: "#797979"}} placeholder="Enter prediction content" value={text} onIonChange={elem => setText(elem.detail.value || '')}/>
                 <IonLoading isOpen={saving}/>
                 {savingError && (
                     <div>{savingError.message || 'Failed to save prediction'}</div>
