@@ -1,6 +1,6 @@
 export class Prediction {
-    constructor({name, text}) {
+    constructor({name, driverOrder}) {
         this.name = name;
-        this.text = text;
+        this.driverOrder = driverOrder;
     }
 }

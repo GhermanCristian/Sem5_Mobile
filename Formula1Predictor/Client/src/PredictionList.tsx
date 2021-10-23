@@ -28,8 +28,8 @@ const PredictionList: React.FC<RouteComponentProps> = ({history}) => {
                 <IonLoading isOpen={fetching} message="Fetching predictions"/>
                 {predictions && (
                     <IonList>
-                        {predictions.map(({name, text}) =>
-                            <PredictionListItem key={name} name={name} text={text}
+                        {predictions.map(({name, driverOrder}) =>
+                            <PredictionListItem key={name} name={name} driverOrder={driverOrder}
                                                 onEdit={name => history.push(`/prediction/${name}`)}/>)}
                     </IonList>
                 )}

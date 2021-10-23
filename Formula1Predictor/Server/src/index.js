@@ -28,16 +28,24 @@ app.use(async (context, next) => {
     }
 });
 
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
 const RACE_NAMES = ["Bahrain", "Imola", "Portugal", "Barcelona", "Monaco", "Baku", "France", "Austria", "Styria", "Silverstone", "Hungaroring",
     "Spa", "Zandvoort", "Monza", "Sochi", "Turkey", "COTA", "Mexico", "Interlagos", "Qatar", "Jeddah", "AbuDhabi"];
 const DRIVER_NAMES = ["Hamilton", "Bottas", "Verstappen", "Perez", "Sainz", "Leclerc", "Norris", "Ricciardo", "Vettel", "Stroll", "Alonso", "Ocon", "Gasly",
     "Tsunoda", "Russell", "Latifi", "Raikkonen", "Giovinazzi", "Schumacher", "Mazepin"]
 const CURRENT_SEASON = new Date().getFullYear();
-const CURRENT_RACE = Math.floor(Math.random() * Math.floor(RACE_NAMES.length / 2));
+//const CURRENT_RACE = Math.floor(Math.random() * Math.floor(RACE_NAMES.length / 2));
+const CURRENT_RACE = 18
 const predictions = [];
 for (let i = 0; i < CURRENT_RACE - 1; i++) {
-    let winner = DRIVER_NAMES[Math.floor(Math.random() * DRIVER_NAMES.length)];
-    predictions.push(new Prediction({name: RACE_NAMES[i]+CURRENT_SEASON, text: `Winner: ${winner}`}));
+    predictions.push(new Prediction({name: RACE_NAMES[i]+CURRENT_SEASON, driverOrder: shuffleArray([...DRIVER_NAMES])}));
 }
 
 const broadcast = data =>
@@ -70,8 +78,8 @@ router.get('/prediction/:name', async (context) => {
 
 const createPrediction = async (context) => {
     const prediction = context.request.body;
-    if (!prediction.text) { // validation
-        context.response.body = {issue: [{error: 'Text is missing'}]};
+    if (!prediction.driverOrder || !prediction.driverOrder.length) { // validation
+        context.response.body = {issue: [{error: 'Driver order is missing'}]};
         context.response.status = 400; //  BAD REQUEST
         return;
     }

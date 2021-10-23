@@ -6,10 +6,10 @@ interface PredictionExt extends Prediction {
     onEdit: (name?: string) => void;
 }
 
-const PredictionListItem: React.FC<PredictionExt> = ({name, text, onEdit}) => {
+const PredictionListItem: React.FC<PredictionExt> = ({name, driverOrder, onEdit}) => {
     return (
         <IonItem onClick={() => onEdit(name)}>
-            <IonLabel>{name} - {text.substring(0, 18)}</IonLabel>
+            <IonLabel>{name} - Winner: {driverOrder[0]}</IonLabel>
         </IonItem>
     );
 };

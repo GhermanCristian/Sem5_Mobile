@@ -4,7 +4,7 @@ import {
     IonButtons,
     IonContent,
     IonHeader,
-    IonInput, IonLabel,
+    IonInput, IonItem, IonLabel, IonList,
     IonLoading,
     IonPage, IonRow,
     IonTitle,
@@ -21,7 +21,7 @@ interface PredictionEditProps extends RouteComponentProps<{
 
 const PredictionEdit: React.FC<PredictionEditProps> = ({history, match}) => {
     const {predictions, saving, savingError, savePrediction} = useContext(PredictionContext);
-    const [text, setText] = useState('');
+    const [driverOrder, setDriverOrder] = useState<string[]>([]);
     const [prediction, setPrediction] = useState<Prediction>();
 
     useEffect(() => {
@@ -29,12 +29,12 @@ const PredictionEdit: React.FC<PredictionEditProps> = ({history, match}) => {
         const prediction = predictions?.find(it => it.name === predictionName);
         setPrediction(prediction);
         if (prediction) {
-            setText(prediction.text);
+            setDriverOrder(prediction.driverOrder);
         }
     }, [match.params.name, predictions]);
 
     const handleSave = () => {
-        const editedPrediction = prediction ? {...prediction, text} : {text};
+        const editedPrediction = prediction ? {...prediction, driverOrder} : {driverOrder};
         savePrediction && savePrediction(editedPrediction).then(() => history.goBack());
     };
 
@@ -54,10 +54,17 @@ const PredictionEdit: React.FC<PredictionEditProps> = ({history, match}) => {
                 </IonToolbar>
             </IonHeader>
             <IonContent>
-                <IonLabel>Name - {prediction?.name}</IonLabel>
+                <IonLabel>Race: {prediction?.name}</IonLabel>
                 <IonRow style={{height: "15px"}}></IonRow>
-                <IonLabel>Content</IonLabel>
-                <IonInput style={{backgroundColor: "#797979"}} placeholder="Enter prediction content" value={text} onIonChange={elem => setText(elem.detail.value || '')}/>
+                <IonLabel>Standings</IonLabel>
+                <IonList>{
+                    prediction?.driverOrder.map((driverName) =>
+                        <IonItem>
+                            <IonLabel>{driverName}</IonLabel>
+                        </IonItem>
+                        )
+                }</IonList>
+
                 <IonLoading isOpen={saving}/>
                 {savingError && (
                     <div>{savingError.message || 'Failed to save prediction'}</div>
