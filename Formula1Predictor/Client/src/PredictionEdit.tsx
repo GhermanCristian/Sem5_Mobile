@@ -4,7 +4,7 @@ import {
     IonButtons,
     IonContent,
     IonHeader,
-    IonInput,
+    IonInput, IonLabel,
     IonLoading,
     IonPage,
     IonTitle,
@@ -25,8 +25,8 @@ const PredictionEdit: React.FC<PredictionEditProps> = ({history, match}) => {
     const [prediction, setPrediction] = useState<Prediction>();
 
     useEffect(() => {
-        const routeName = match.params.name || '';
-        const prediction = predictions?.find(it => it.name === routeName);
+        const predictionName = match.params.name || '';
+        const prediction = predictions?.find(it => it.name === predictionName);
         setPrediction(prediction);
         if (prediction) {
             setText(prediction.text);
@@ -42,8 +42,11 @@ const PredictionEdit: React.FC<PredictionEditProps> = ({history, match}) => {
         <IonPage>
             <IonHeader>
                 <IonToolbar>
-                    <IonTitle>Edit</IonTitle>
+                    <IonTitle>Edit prediction</IonTitle>
                     <IonButtons slot="end">
+                        <IonButton onClick={history.goBack}>
+                            Go back to main page
+                        </IonButton>
                         <IonButton onClick={handleSave}>
                             Save prediction
                         </IonButton>
@@ -51,7 +54,8 @@ const PredictionEdit: React.FC<PredictionEditProps> = ({history, match}) => {
                 </IonToolbar>
             </IonHeader>
             <IonContent>
-                <IonInput value={text} onIonChange={elem => setText(elem.detail.value || '')}/>
+                <IonLabel>Content</IonLabel>
+                <IonInput placeholder="Enter prediction content" value={text} onIonChange={elem => setText(elem.detail.value || '')}/>
                 <IonLoading isOpen={saving}/>
                 {savingError && (
                     <div>{savingError.message || 'Failed to save prediction'}</div>
