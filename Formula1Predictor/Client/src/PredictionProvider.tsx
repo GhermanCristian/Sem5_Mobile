@@ -27,42 +27,42 @@ const initialState: PredictionsState = {
     saving: false,
 };
 
-const FETCH_ITEMS_STARTED = 'FETCH_ITEMS_STARTED';
-const FETCH_ITEMS_SUCCEEDED = 'FETCH_ITEMS_SUCCEEDED';
-const FETCH_ITEMS_FAILED = 'FETCH_ITEMS_FAILED';
-const SAVE_ITEM_STARTED = 'SAVE_ITEM_STARTED';
-const SAVE_ITEM_SUCCEEDED = 'SAVE_ITEM_SUCCEEDED';
-const SAVE_ITEM_FAILED = 'SAVE_ITEM_FAILED';
+const FETCH_PREDICTIONS_STARTED = 'FETCH_PREDICTIONS_STARTED';
+const FETCH_PREDICTIONS_SUCCEEDED = 'FETCH_PREDICTIONS_SUCCEEDED';
+const FETCH_PREDICTIONS_FAILED = 'FETCH_PREDICTIONS_FAILED';
+const SAVE_PREDICTION_STARTED = 'SAVE_PREDICTION_STARTED';
+const SAVE_PREDICTION_SUCCEEDED = 'SAVE_PREDICTION_SUCCEEDED';
+const SAVE_PREDICTION_FAILED = 'SAVE_PREDICTION_FAILED';
 
 const reducer: (state: PredictionsState, action: ActionProps) => PredictionsState =
     (state, {type, payload}) => {
         switch (type) {
-            case FETCH_ITEMS_STARTED:
+            case FETCH_PREDICTIONS_STARTED:
                 return {...state, fetching: true, fetchingError: null};
 
-            case FETCH_ITEMS_SUCCEEDED:
+            case FETCH_PREDICTIONS_SUCCEEDED:
                 return {...state, predictions: payload.predictions, fetching: false};
 
-            case FETCH_ITEMS_FAILED:
+            case FETCH_PREDICTIONS_FAILED:
                 return {...state, fetchingError: payload.error, fetching: false};
 
-            case SAVE_ITEM_STARTED:
+            case SAVE_PREDICTION_STARTED:
                 return {...state, savingError: null, saving: true};
 
-            case SAVE_ITEM_SUCCEEDED:
+            case SAVE_PREDICTION_SUCCEEDED:
                 const predictions = [...(state.predictions || [])];
-                const item = payload.item;
-                const index = predictions.findIndex(it => it.name === item.name);
+                const prediction = payload.prediction;
+                const index = predictions.findIndex(it => it.name === prediction.name);
 
                 if (index === -1) {
-                    predictions.splice(0, 0, item);
+                    predictions.splice(0, 0, prediction);
                 }
                 else {
-                    predictions[index] = item;
+                    predictions[index] = prediction;
                 }
                 return {...state, predictions, saving: false};
 
-            case SAVE_ITEM_FAILED:
+            case SAVE_PREDICTION_FAILED:
                 return {...state, savingError: payload.error, saving: false};
 
             default:
@@ -70,61 +70,61 @@ const reducer: (state: PredictionsState, action: ActionProps) => PredictionsStat
         }
     };
 
-export const ItemContext = React.createContext<PredictionsState>(initialState);
+export const PredictionContext = React.createContext<PredictionsState>(initialState);
 
-interface ItemProviderProps {
+interface PredictionProviderProps {
     children: PropTypes.ReactNodeLike,
 }
 
-export const PredictionProvider: React.FC<ItemProviderProps> = ({children}) => {
+export const PredictionProvider: React.FC<PredictionProviderProps> = ({children}) => {
     const [state, dispatch] = useReducer(reducer, initialState);
     const {predictions, fetching, fetchingError, saving, savingError} = state;
 
-    useEffect(getItemsEffect, []);
+    useEffect(getPredictionsEffect, []);
     useEffect(wsEffect, []);
 
-    const savePrediction = useCallback<SavePredictionFunction>(saveItemCallback, []);
+    const savePrediction = useCallback<SavePredictionFunction>(savePredictionCallback, []);
     const value = {predictions, fetching, fetchingError, saving, savingError, savePrediction};
     return (
-        <ItemContext.Provider value={value}>
+        <PredictionContext.Provider value={value}>
             {children}
-        </ItemContext.Provider>
+        </PredictionContext.Provider>
     );
 
-    function getItemsEffect() {
+    function getPredictionsEffect() {
         let canceled = false;
-        fetchItems().then(response => log(response));
+        fetchPredictions().then(response => log(response));
         return () => {
             canceled = true;
         }
 
-        async function fetchItems() {
+        async function fetchPredictions() {
             try {
-                log('fetchItems started');
-                dispatch({type: FETCH_ITEMS_STARTED});
+                log('fetchPredictions started');
+                dispatch({type: FETCH_PREDICTIONS_STARTED});
                 const predictions = await getPredictions();
-                log('fetchItems succeeded');
+                log('fetchPredictions succeeded');
                 if (!canceled) {
-                    dispatch({type: FETCH_ITEMS_SUCCEEDED, payload: {predictions}});
+                    dispatch({type: FETCH_PREDICTIONS_SUCCEEDED, payload: {predictions}});
                 }
             } catch (error) {
-                log('fetchItems failed');
-                dispatch({type: FETCH_ITEMS_FAILED, payload: {error}});
+                log('fetchPredictions failed');
+                dispatch({type: FETCH_PREDICTIONS_FAILED, payload: {error}});
             }
         }
     }
 
-    async function saveItemCallback(item: Prediction) {
+    async function savePredictionCallback(prediction: Prediction) {
         try {
             log('savePrediction started');
-            dispatch({type: SAVE_ITEM_STARTED});
-            const savedItem = await (item.name ? updatePrediction(item) : createPrediction(item));
+            dispatch({type: SAVE_PREDICTION_STARTED});
+            const savedPrediction = await (prediction.name ? updatePrediction(prediction) : createPrediction(prediction));
             log('savePrediction succeeded');
-            dispatch({type: SAVE_ITEM_SUCCEEDED, payload: {item: savedItem}});
+            dispatch({type: SAVE_PREDICTION_SUCCEEDED, payload: {prediction: savedPrediction}});
         }
         catch (error) {
             log('savePrediction failed');
-            dispatch({type: SAVE_ITEM_FAILED, payload: {error}});
+            dispatch({type: SAVE_PREDICTION_FAILED, payload: {error}});
         }
     }
 
@@ -136,9 +136,9 @@ export const PredictionProvider: React.FC<ItemProviderProps> = ({children}) => {
                 return;
             }
             const {event, payload: {prediction}} = message;
-            log(`ws message, item ${event}`);
+            log(`ws message, prediction ${event}`);
             if (event === 'created' || event === 'updated') {
-                dispatch({type: SAVE_ITEM_SUCCEEDED, payload: {prediction}});
+                dispatch({type: SAVE_PREDICTION_SUCCEEDED, payload: {prediction}});
             }
         });
         return () => {

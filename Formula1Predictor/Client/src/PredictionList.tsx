@@ -13,10 +13,10 @@ import {
 } from '@ionic/react';
 import {add} from 'ionicons/icons';
 import PredictionListItem from './PredictionListItem';
-import {ItemContext} from './PredictionProvider';
+import {PredictionContext} from './PredictionProvider';
 
 const PredictionList: React.FC<RouteComponentProps> = ({history}) => {
-    const {predictions, fetching, fetchingError} = useContext(ItemContext);
+    const {predictions, fetching, fetchingError} = useContext(PredictionContext);
     return (
         <IonPage>
             <IonHeader>

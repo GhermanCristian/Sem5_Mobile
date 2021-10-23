@@ -78,7 +78,7 @@ const createPrediction = async (context) => {
         return;
     }
 
-    prediction.name = "newname";
+    prediction.name = "name"+Math.floor(Math.random() * 100);
     prediction.date = new Date();
     predictions.push(prediction);
 
