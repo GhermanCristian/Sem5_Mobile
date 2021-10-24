@@ -14,9 +14,16 @@ import {
 import {add} from 'ionicons/icons';
 import PredictionListItem from './PredictionListItem';
 import {PredictionContext} from './PredictionProvider';
+import {createPrediction} from "./PredictionAPI";
 
 const PredictionList: React.FC<RouteComponentProps> = ({history}) => {
     const {predictions, fetching, fetchingError} = useContext(PredictionContext);
+
+    const addNewPrediction = async () => {
+        await createPrediction();
+        history.push('/'); // reload page
+    }
+
     return (
         <IonPage>
             <IonHeader>
@@ -37,7 +44,7 @@ const PredictionList: React.FC<RouteComponentProps> = ({history}) => {
                     <div>{fetchingError.message || 'Failed to fetch predictions'}</div>
                 )}
                 <IonFab vertical="bottom" horizontal="end" slot="fixed">
-                    <IonFabButton onClick={() => history.push('/prediction')}>
+                    <IonFabButton onClick={addNewPrediction}>
                         <IonIcon icon={add}/>
                     </IonFabButton>
                 </IonFab>

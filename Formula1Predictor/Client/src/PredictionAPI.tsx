@@ -27,8 +27,8 @@ export const getPredictions: () => Promise<Prediction[]> = () => {
     return resolveWithLogs(axios.get(predictionURL, config));
 }
 
-export const createPrediction: (prediction: Prediction) => Promise<Prediction[]> = prediction => {
-    return resolveWithLogs(axios.post(predictionURL, prediction, config));
+export const createPrediction: () => Promise<Prediction[]> = () => {
+    return resolveWithLogs(axios.post(predictionURL, {}, config));
 }
 
 export const updatePrediction: (prediction: Prediction) => Promise<Prediction[]> = prediction => {

@@ -36,7 +36,7 @@ const RACE_NAMES = ["Bahrain", "Imola", "Portugal", "Barcelona", "Monaco", "Baku
 const DRIVER_NAMES = ["Hamilton", "Bottas", "Verstappen", "Perez", "Sainz", "Leclerc", "Norris", "Ricciardo", "Vettel", "Stroll", "Alonso", "Ocon", "Gasly",
     "Tsunoda", "Russell", "Latifi", "Raikkonen", "Giovinazzi", "Schumacher", "Mazepin"]
 const CURRENT_SEASON = new Date().getFullYear();
-const CURRENT_RACE = Math.floor(Math.random() * Math.floor(RACE_NAMES.length / 2));
+const CURRENT_RACE = Math.floor(Math.random() * Math.floor(RACE_NAMES.length / 2)) + 1;
 const predictions = [];
 for (let i = 0; i < CURRENT_RACE - 1; i++) {
     predictions.push(new Prediction({name: RACE_NAMES[i]+CURRENT_SEASON, driverOrder: shuffleArray([...DRIVER_NAMES])}));
@@ -71,19 +71,14 @@ router.get('/prediction/:name', async (context) => {
 });
 
 const createPrediction = async (context) => {
-    const prediction = context.request.body;
-    if (!prediction.driverOrder || !prediction.driverOrder.length) { // validation
-        context.response.body = {issue: [{error: 'Driver order is missing'}]};
-        context.response.status = 400; //  BAD REQUEST
-        return;
-    }
+    const name = RACE_NAMES[predictions.length % 22] + CURRENT_SEASON;
+    const driverOrder = [...DRIVER_NAMES];
+    const newPrediction = new Prediction({name, driverOrder});
 
-    prediction.name = RACE_NAMES[predictions.length % 22]+CURRENT_SEASON;
-    predictions.push(prediction);
-
-    context.response.body = prediction;
+    predictions.push(newPrediction);
+    context.response.body = newPrediction;
     context.response.status = 201; // CREATED
-    broadcast({event: 'created', payload: {prediction}});
+    broadcast({event: 'created', payload: {newPrediction}});
 };
 
 router.post('/prediction', async (context) => {

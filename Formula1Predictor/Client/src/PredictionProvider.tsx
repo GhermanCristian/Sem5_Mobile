@@ -2,7 +2,7 @@ import React, {useCallback, useEffect, useReducer} from 'react';
 import PropTypes from 'prop-types';
 import {getLogger} from './core';
 import {Prediction} from './Prediction';
-import {createPrediction, getPredictions, newWebSocket, updatePrediction} from './PredictionAPI';
+import {getPredictions, newWebSocket, updatePrediction} from './PredictionAPI';
 
 const log = getLogger('PredictionProvider');
 
@@ -118,7 +118,7 @@ export const PredictionProvider: React.FC<PredictionProviderProps> = ({children}
         try {
             log('savePrediction started');
             dispatch({type: SAVE_PREDICTION_STARTED});
-            const savedPrediction = await (prediction.name ? updatePrediction(prediction) : createPrediction(prediction));
+            const savedPrediction = await updatePrediction(prediction);
             log('savePrediction succeeded');
             dispatch({type: SAVE_PREDICTION_SUCCEEDED, payload: {prediction: savedPrediction}});
         }
@@ -137,7 +137,10 @@ export const PredictionProvider: React.FC<PredictionProviderProps> = ({children}
             }
             const {event, payload: {prediction}} = message;
             log(`ws message, prediction ${event}`);
-            if (event === 'created' || event === 'updated') {
+            if (event === 'created') {
+
+            }
+            else if (event === 'updated') {
                 dispatch({type: SAVE_PREDICTION_SUCCEEDED, payload: {prediction}});
             }
         });

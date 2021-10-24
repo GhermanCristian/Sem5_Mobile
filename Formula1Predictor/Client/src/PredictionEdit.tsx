@@ -13,7 +13,7 @@ import {
 import {PredictionContext} from './PredictionProvider';
 import {RouteComponentProps} from 'react-router';
 import {Prediction} from './Prediction';
-import { ItemReorderEventDetail } from '@ionic/core';
+import {ItemReorderEventDetail} from '@ionic/core';
 
 interface PredictionEditProps extends RouteComponentProps<{
     name?: string;
@@ -71,7 +71,7 @@ const PredictionEdit: React.FC<PredictionEditProps> = ({history, match}) => {
                                 <IonLabel>{driverName}</IonLabel>
                             </IonItem>
                         </IonReorder>
-                        )
+                    )
                 }</IonReorderGroup>
 
                 <IonLoading isOpen={saving}/>
