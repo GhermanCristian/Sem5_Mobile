@@ -4,15 +4,16 @@ import {
     IonButtons,
     IonContent,
     IonHeader,
-    IonInput, IonItem, IonLabel, IonList,
+    IonItem, IonLabel,
     IonLoading,
-    IonPage, IonRow,
+    IonPage, IonReorder, IonReorderGroup, IonRow,
     IonTitle,
     IonToolbar
 } from '@ionic/react';
 import {PredictionContext} from './PredictionProvider';
 import {RouteComponentProps} from 'react-router';
 import {Prediction} from './Prediction';
+import { ItemReorderEventDetail } from '@ionic/core';
 
 interface PredictionEditProps extends RouteComponentProps<{
     name?: string;
@@ -38,6 +39,12 @@ const PredictionEdit: React.FC<PredictionEditProps> = ({history, match}) => {
         savePrediction && savePrediction(editedPrediction).then(() => history.goBack());
     };
 
+    const reorderDrivers = (event: CustomEvent<ItemReorderEventDetail>) => {
+        const driverMove = prediction ? prediction.driverOrder.splice(event.detail.from, 1)[0] : '';
+        prediction?.driverOrder.splice(event.detail.to, 0, driverMove);
+        event.detail.complete();
+    }
+
     return (
         <IonPage>
             <IonHeader>
@@ -57,13 +64,15 @@ const PredictionEdit: React.FC<PredictionEditProps> = ({history, match}) => {
                 <IonLabel>Race: {prediction?.name}</IonLabel>
                 <IonRow style={{height: "15px"}}></IonRow>
                 <IonLabel>Standings</IonLabel>
-                <IonList>{
+                <IonReorderGroup disabled={false} onIonItemReorder={reorderDrivers}>{
                     prediction?.driverOrder.map((driverName) =>
-                        <IonItem>
-                            <IonLabel>{driverName}</IonLabel>
-                        </IonItem>
+                        <IonReorder>
+                            <IonItem>
+                                <IonLabel>{driverName}</IonLabel>
+                            </IonItem>
+                        </IonReorder>
                         )
-                }</IonList>
+                }</IonReorderGroup>
 
                 <IonLoading isOpen={saving}/>
                 {savingError && (
