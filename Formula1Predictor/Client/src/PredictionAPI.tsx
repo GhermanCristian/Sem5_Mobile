@@ -11,17 +11,10 @@ interface ResponseProps<T> {
     data: T;
 }
 
-function resolveWithLogs<T>(promise: Promise<ResponseProps<T>>, fnName: string): Promise<T> {
-    log(`${fnName} - started`);
+function resolveWithLogs<T>(promise: Promise<ResponseProps<T>>): Promise<T> {
     return promise
-        .then(res => {
-            log(`${fnName} - succeeded`);
-            return Promise.resolve(res.data);
-        })
-        .catch(err => {
-            log(`${fnName} - failed`);
-            return Promise.reject(err);
-        });
+        .then(res => Promise.resolve(res.data))
+        .catch(err => Promise.reject(err));
 }
 
 const config = {
@@ -31,15 +24,15 @@ const config = {
 };
 
 export const getPredictions: () => Promise<Prediction[]> = () => {
-    return resolveWithLogs(axios.get(predictionURL, config), 'getPredictions');
+    return resolveWithLogs(axios.get(predictionURL, config));
 }
 
 export const createPrediction: (prediction: Prediction) => Promise<Prediction[]> = prediction => {
-    return resolveWithLogs(axios.post(predictionURL, prediction, config), 'createPrediction');
+    return resolveWithLogs(axios.post(predictionURL, prediction, config));
 }
 
 export const updatePrediction: (prediction: Prediction) => Promise<Prediction[]> = prediction => {
-    return resolveWithLogs(axios.put(`${predictionURL}/${prediction.name}`, prediction, config), 'updatePrediction');
+    return resolveWithLogs(axios.put(`${predictionURL}/${prediction.name}`, prediction, config));
 }
 
 interface MessageData {

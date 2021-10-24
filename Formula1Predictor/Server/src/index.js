@@ -11,12 +11,7 @@ const bodyparser = require('koa-bodyparser');
 
 app.use(bodyparser());
 app.use(cors());
-app.use(async (context, next) => {
-    const start = new Date();
-    await next();
-    const ms = new Date() - start;
-    console.log(`${context.method} ${context.url} ${context.response.status} - ${ms}ms`);
-});
+app.use(async (context, next) => await next());
 
 app.use(async (context, next) => {
     try {
@@ -41,8 +36,7 @@ const RACE_NAMES = ["Bahrain", "Imola", "Portugal", "Barcelona", "Monaco", "Baku
 const DRIVER_NAMES = ["Hamilton", "Bottas", "Verstappen", "Perez", "Sainz", "Leclerc", "Norris", "Ricciardo", "Vettel", "Stroll", "Alonso", "Ocon", "Gasly",
     "Tsunoda", "Russell", "Latifi", "Raikkonen", "Giovinazzi", "Schumacher", "Mazepin"]
 const CURRENT_SEASON = new Date().getFullYear();
-//const CURRENT_RACE = Math.floor(Math.random() * Math.floor(RACE_NAMES.length / 2));
-const CURRENT_RACE = 18
+const CURRENT_RACE = Math.floor(Math.random() * Math.floor(RACE_NAMES.length / 2));
 const predictions = [];
 for (let i = 0; i < CURRENT_RACE - 1; i++) {
     predictions.push(new Prediction({name: RACE_NAMES[i]+CURRENT_SEASON, driverOrder: shuffleArray([...DRIVER_NAMES])}));
@@ -85,7 +79,6 @@ const createPrediction = async (context) => {
     }
 
     prediction.name = RACE_NAMES[predictions.length % 22]+CURRENT_SEASON;
-    prediction.date = new Date();
     predictions.push(prediction);
 
     context.response.body = prediction;
@@ -100,7 +93,6 @@ router.post('/prediction', async (context) => {
 const updatePrediction = async (context) => {
     const name = context.params.name;
     const prediction = context.request.body;
-    prediction.date = new Date();
 
     const predictionName = prediction.name;
     if (predictionName && name !== prediction.name) {
