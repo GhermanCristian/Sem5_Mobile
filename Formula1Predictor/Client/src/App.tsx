@@ -1,6 +1,6 @@
-import { Redirect, Route } from 'react-router-dom';
-import { IonApp, IonRouterOutlet } from '@ionic/react';
-import { IonReactRouter } from '@ionic/react-router';
+import {Redirect, Route} from 'react-router-dom';
+import {IonApp, IonRouterOutlet} from '@ionic/react';
+import {IonReactRouter} from '@ionic/react-router';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -20,23 +20,27 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
-import { PredictionProvider } from './PredictionProvider';
+import {PredictionProvider} from './PredictionProvider';
 import React from "react";
 import PredictionList from "./PredictionList";
 import PredictionEdit from "./PredictionEdit";
+import {AuthProvider, Login, PrivateRoute} from "./auth";
 
 const App: React.FC = () => (
     <IonApp>
-      <PredictionProvider>
         <IonReactRouter>
-          <IonRouterOutlet>
-            <Route path="/predictions" component={PredictionList} exact={true} />
-            <Route path="/prediction" component={PredictionEdit} exact={true} />
-            <Route path="/prediction/:name" component={PredictionEdit} exact={true} />
-            <Route exact path="/" render={() => <Redirect to="/predictions" />} />
-          </IonRouterOutlet>
+            <IonRouterOutlet>
+                <AuthProvider>
+                    <PredictionProvider>
+                        <PrivateRoute path="/predictions" component={PredictionList} exact={true}/>
+                        <PrivateRoute path="/prediction" component={PredictionEdit} exact={true}/>
+                        <PrivateRoute path="/prediction/:name" component={PredictionEdit} exact={true}/>
+                    </PredictionProvider>
+                    <Route path="/login" component={Login} exact={true}/>
+                    <Route exact path="/" render={() => <Redirect to="/predictions"/>}/>
+                </AuthProvider>
+            </IonRouterOutlet>
         </IonReactRouter>
-      </PredictionProvider>
     </IonApp>
 );
 

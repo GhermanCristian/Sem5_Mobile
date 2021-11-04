@@ -22,7 +22,7 @@ publicRouter.use('/auth', authenticationRouter.routes());
 app.use(publicRouter.routes());
 app.use(publicRouter.allowedMethods());
 
-//app.use(jwt(jwtConfig));
+app.use(jwt(jwtConfig));
 
 app.use(predictionRouter.routes());
 app.use(predictionRouter.allowedMethods());
