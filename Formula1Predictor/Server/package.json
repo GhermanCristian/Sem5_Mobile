@@ -1,21 +1,30 @@
 {
-  "name": "backpack-koa",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "start": "backpack"
-  },
-  "keywords": [],
-  "author": "ilazar",
-  "license": "",
-  "dependencies": {
-    "backpack-core": "^0.8.4",
-    "koa": "^2.8.2",
-    "koa-bodyparser": "^4.2.1",
-    "koa-convert": "^1.2.0",
-    "koa-cors": "^0.0.16",
-    "koa-router": "^7.4.0",
-    "ws": "^7.1.2"
-  }
+    "name": "backpack-koa",
+    "version": "1.0.0",
+    "description": "",
+    "main": "src/index.js",
+    "scripts": {
+        "test": "mocha --compilers js:babel-core/register src/**/*.spec.js",
+        "start": "backpack dev",
+        "build": "backpack build"
+    },
+    "keywords": [],
+    "license": "",
+    "dependencies": {
+        "@koa/cors": "^3.1.0",
+        "jsonwebtoken": "^8.5.1",
+        "koa": "^2.13.0",
+        "koa-bodyparser": "^4.3.0",
+        "koa-cors": "0.0.16",
+        "koa-jwt": "^3.6.0",
+        "koa-router": "^8.0.8",
+        "nedb-promise": "^2.0.1",
+        "ws": "^7.3.1"
+    },
+    "devDependencies": {
+        "backpack-core": "^0.8.4"
+    },
+    "engines": {
+        "node": ">= 7.6"
+    }
 }
