@@ -1,11 +1,11 @@
 import axios from 'axios';
-import {getLogger} from './core';
+import {authConfig, getLogger} from './core';
 import {Prediction} from './Prediction';
 
 const log = getLogger('predictionApi');
 
 const serverURL = 'localhost:3000';
-const predictionURL = `http://${serverURL}/prediction`;
+const predictionURL = `http://${serverURL}/pred/prediction`;
 
 interface ResponseProps<T> {
     data: T;
@@ -17,22 +17,16 @@ function resolveWithLogs<T>(promise: Promise<ResponseProps<T>>): Promise<T> {
         .catch(err => Promise.reject(err));
 }
 
-const config = {
-    headers: {
-        'Content-Type': 'application/json'
-    }
-};
-
-export const getPredictions: () => Promise<Prediction[]> = () => {
-    return resolveWithLogs(axios.get(predictionURL, config));
+export const getPredictions: (token: string) => Promise<Prediction[]> = (token) => {
+    return resolveWithLogs(axios.get(predictionURL, authConfig(token)));
 }
 
-export const createPrediction: () => Promise<Prediction[]> = () => {
-    return resolveWithLogs(axios.post(predictionURL, {}, config));
+export const createPrediction: (token: string) => Promise<Prediction[]> = (token) => {
+    return resolveWithLogs(axios.post(predictionURL, {}, authConfig(token)));
 }
 
-export const updatePrediction: (prediction: Prediction) => Promise<Prediction[]> = prediction => {
-    return resolveWithLogs(axios.put(`${predictionURL}/${prediction.name}`, prediction, config));
+export const updatePrediction: (token: string, prediction: Prediction) => Promise<Prediction[]> = (token, prediction) => {
+    return resolveWithLogs(axios.put(`${predictionURL}/${prediction.name}`, prediction, authConfig(token)));
 }
 
 interface MessageData {

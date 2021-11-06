@@ -17,10 +17,10 @@ import {PredictionContext} from './PredictionProvider';
 import {createPrediction} from "./PredictionAPI";
 
 const PredictionList: React.FC<RouteComponentProps> = ({history}) => {
-    const {predictions, fetching, fetchingError} = useContext(PredictionContext);
+    const {predictions, fetching, fetchingError, token} = useContext(PredictionContext);
 
     const addNewPrediction = async () => {
-        await createPrediction();
+        await createPrediction(token);
         history.push('/'); // reload page
     }
 

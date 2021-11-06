@@ -1,8 +1,9 @@
-import React, {useCallback, useEffect, useReducer} from 'react';
+import React, {useCallback, useContext, useEffect, useReducer} from 'react';
 import PropTypes from 'prop-types';
 import {getLogger} from './core';
 import {Prediction} from './Prediction';
 import {getPredictions, newWebSocket, updatePrediction} from './PredictionAPI';
+import {AuthContext} from "./auth";
 
 const log = getLogger('PredictionProvider');
 
@@ -13,6 +14,7 @@ export interface PredictionsState {
     fetching: boolean,
     fetchingError?: Error | null,
     saving: boolean,
+    token: string,
     savingError?: Error | null,
     savePrediction?: SavePredictionFunction,
 }
@@ -25,6 +27,7 @@ interface ActionProps {
 const initialState: PredictionsState = {
     fetching: false,
     saving: false,
+    token: ""
 };
 
 const FETCH_PREDICTIONS_STARTED = 'FETCH_PREDICTIONS_STARTED';
@@ -77,14 +80,15 @@ interface PredictionProviderProps {
 }
 
 export const PredictionProvider: React.FC<PredictionProviderProps> = ({children}) => {
+    const { token } = useContext(AuthContext);
     const [state, dispatch] = useReducer(reducer, initialState);
     const {predictions, fetching, fetchingError, saving, savingError} = state;
 
-    useEffect(getPredictionsEffect, []);
-    useEffect(wsEffect, []);
+    useEffect(getPredictionsEffect, [token]);
+    useEffect(wsEffect, [token]);
 
-    const savePrediction = useCallback<SavePredictionFunction>(savePredictionCallback, []);
-    const value = {predictions, fetching, fetchingError, saving, savingError, savePrediction};
+    const savePrediction = useCallback<SavePredictionFunction>(savePredictionCallback, [token]);
+    const value = {predictions, fetching, fetchingError, saving, savingError, savePrediction, token};
     return (
         <PredictionContext.Provider value={value}>
             {children}
@@ -99,10 +103,13 @@ export const PredictionProvider: React.FC<PredictionProviderProps> = ({children}
         }
 
         async function fetchPredictions() {
+            if (!token?.trim()) {
+                return;
+            }
             try {
                 log('fetchPredictions started');
                 dispatch({type: FETCH_PREDICTIONS_STARTED});
-                const predictions = await getPredictions();
+                const predictions = await getPredictions(token);
                 log('fetchPredictions succeeded');
                 if (!canceled) {
                     dispatch({type: FETCH_PREDICTIONS_SUCCEEDED, payload: {predictions}});
@@ -118,7 +125,7 @@ export const PredictionProvider: React.FC<PredictionProviderProps> = ({children}
         try {
             log('savePrediction started');
             dispatch({type: SAVE_PREDICTION_STARTED});
-            const savedPrediction = await updatePrediction(prediction);
+            const savedPrediction = await updatePrediction(token, prediction);
             log('savePrediction succeeded');
             dispatch({type: SAVE_PREDICTION_SUCCEEDED, payload: {prediction: savedPrediction}});
         }
@@ -131,23 +138,27 @@ export const PredictionProvider: React.FC<PredictionProviderProps> = ({children}
     function wsEffect() {
         let canceled = false;
         log('wsEffect - connecting');
-        const closeWebSocket = newWebSocket(message => {
-            if (canceled) {
-                return;
-            }
-            const {event, payload: {prediction}} = message;
-            log(`ws message, prediction ${event}`);
-            if (event === 'created') {
+        let closeWebSocket: () => void;
+        if (token?.trim()) {
+            closeWebSocket = newWebSocket(message => {
+                if (canceled) {
+                    return;
+                }
+                const {event, payload: {prediction}} = message;
+                log(`ws message, prediction ${event}`);
+                if (event === 'created') {
 
-            }
-            else if (event === 'updated') {
-                dispatch({type: SAVE_PREDICTION_SUCCEEDED, payload: {prediction}});
-            }
-        });
+                }
+                else if (event === 'updated') {
+                    dispatch({type: SAVE_PREDICTION_SUCCEEDED, payload: {prediction}});
+                }
+            });
+        }
+
         return () => {
             log('wsEffect - disconnecting');
             canceled = true;
-            closeWebSocket();
+            closeWebSocket?.();
         }
     }
 };

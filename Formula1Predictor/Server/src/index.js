@@ -1,17 +1,18 @@
 import {predictionRouter} from "./prediction";
 import {authenticationRouter} from "./auth";
-import {exceptionHandler, initWss, jwtConfig} from "./utils";
-import bodyParser from "koa-bodyparser";
-import jwt from 'koa-jwt';
+import Koa from 'koa';
 import WebSocket from 'ws';
-import Router from "koa-router";
+import http from 'http';
+import Router from 'koa-router';
+import bodyParser from "koa-bodyparser";
+import { exceptionHandler, jwtConfig, initWss } from './utils';
+import jwt from 'koa-jwt';
+import cors from '@koa/cors';
 
-const Koa = require('koa');
 const app = new Koa();
-const server = require('http').createServer(app.callback());
+const server = http.createServer(app.callback());
 const wss = new WebSocket.Server({ server });
 initWss(wss);
-const cors = require('koa-cors');
 
 app.use(cors());
 app.use(exceptionHandler);
@@ -24,7 +25,9 @@ app.use(publicRouter.allowedMethods());
 
 app.use(jwt(jwtConfig));
 
-app.use(predictionRouter.routes());
-app.use(predictionRouter.allowedMethods());
+const privateRouter = new Router();
+privateRouter.use('/pred', predictionRouter.routes());
+app.use(privateRouter.routes());
+app.use(privateRouter.allowedMethods());
 
 server.listen(3000);

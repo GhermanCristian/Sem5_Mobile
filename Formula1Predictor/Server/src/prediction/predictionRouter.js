@@ -1,44 +1,28 @@
 import Router from "koa-router";
-import {Prediction} from "./Prediction";
-const WebSocket = require('ws');
+import { broadcast } from "../utils";
+import PredictionStore from "./store";
 
 export const predictionRouter = new Router();
-
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-}
 
 const RACE_NAMES = ["Bahrain", "Imola", "Portugal", "Barcelona", "Monaco", "Baku", "France", "Austria", "Styria", "Silverstone", "Hungaroring",
     "Spa", "Zandvoort", "Monza", "Sochi", "Turkey", "COTA", "Mexico", "Interlagos", "Qatar", "Jeddah", "AbuDhabi"];
 const DRIVER_NAMES = ["Hamilton", "Bottas", "Verstappen", "Perez", "Sainz", "Leclerc", "Norris", "Ricciardo", "Vettel", "Stroll", "Alonso", "Ocon", "Gasly",
     "Tsunoda", "Russell", "Latifi", "Raikkonen", "Giovinazzi", "Schumacher", "Mazepin"]
 const CURRENT_SEASON = new Date().getFullYear();
-const CURRENT_RACE = Math.floor(Math.random() * Math.floor(RACE_NAMES.length / 2)) + 2;
-const predictions = [];
-for (let i = 0; i < CURRENT_RACE - 1; i++) {
-    predictions.push(new Prediction({name: RACE_NAMES[i]+CURRENT_SEASON, driverOrder: shuffleArray([...DRIVER_NAMES])}));
-}
 
-const broadcast = data =>
-    webSocketServer.clients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify(data));
-        }
-    });
+let predictions = [];
 
-const createPrediction = async (context) => {
-    const name = RACE_NAMES[predictions.length % 22] + CURRENT_SEASON;
+const createPrediction = async (context, prediction) => {
+    const name = RACE_NAMES[(predictions.length % 22) | 0] + CURRENT_SEASON;
     const driverOrder = [...DRIVER_NAMES];
-    const newPrediction = new Prediction({name, driverOrder});
+    const userID = context.state.user._id;
+    prediction.name = name;
+    prediction.driverOrder = driverOrder;
+    prediction.userID = userID;
 
-    predictions.push(newPrediction);
-    context.response.body = newPrediction;
+    context.response.body = await PredictionStore.insert(prediction);
     context.response.status = 201; // CREATED
-    broadcast({event: 'created', payload: {newPrediction}});
+    broadcast({event: 'created', payload: {prediction}});
 };
 
 const updatePrediction = async (context) => {
@@ -70,18 +54,27 @@ const updatePrediction = async (context) => {
     broadcast({event: 'updated', payload: {prediction}});
 }
 
-predictionRouter.get('/prediction', context => {
+predictionRouter.get('/prediction', async (context) => {
+    const userID = context.state.user._id;
+    predictions = await PredictionStore.find({userID});
     context.response.body = predictions;
     context.response.status = 200;
 });
 
 predictionRouter.get('/prediction/:name', async (context) => {
+    const userID = context.state.user._id;
     const predictionName = context.request.params.name;
-    const prediction = predictions.find(prediction => predictionName === prediction.name);
+    const prediction = await PredictionStore.findOne({predictionName});
+    //const prediction = predictions.find(prediction => predictionName === prediction.name);
 
     if (prediction) {
-        context.response.body = prediction;
-        context.response.status = 200; // ok
+        if (prediction.userID === userID) {
+            context.response.body = prediction;
+            context.response.status = 200; // ok
+        }
+        else {
+            context.response.status = 200; // forbidden
+        }
     }
     else {
         context.response.body = {issue: [{warning: `prediction with name ${predictionName} not found`}]};
