@@ -5,6 +5,7 @@ import {Prediction} from "./Prediction";
 
 export const predictionRouter = new Router();
 
+const PREDICTIONS_PER_PAGE = 3;
 const RACE_NAMES = ["Bahrain", "Imola", "Portugal", "Barcelona", "Monaco", "Baku", "France", "Austria", "Styria", "Silverstone", "Hungaroring",
     "Spa", "Zandvoort", "Monza", "Sochi", "Turkey", "COTA", "Mexico", "Interlagos", "Qatar", "Jeddah", "AbuDhabi"];
 const DRIVER_NAMES = ["Hamilton", "Bottas", "Verstappen", "Perez", "Sainz", "Leclerc", "Norris", "Ricciardo", "Vettel", "Stroll", "Alonso", "Ocon", "Gasly",
@@ -61,6 +62,13 @@ const updatePrediction = async (context) => {
         context.response.status = 405; // method not allowed
     }
 }
+
+predictionRouter.get('/prediction/page/:page', async (context) => {
+    const page = context.params.page;
+    const userID = context.state.user._id;
+    context.response.body = (await PredictionStore.find({userID})).slice((page - 1) * PREDICTIONS_PER_PAGE, page * PREDICTIONS_PER_PAGE);
+    context.response.status = 200;
+});
 
 predictionRouter.get('/prediction', async (context) => {
     const userID = context.state.user._id;

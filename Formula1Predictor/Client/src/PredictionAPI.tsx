@@ -17,6 +17,14 @@ function resolveWithLogs<T>(promise: Promise<ResponseProps<T>>): Promise<T> {
         .catch(err => Promise.reject(err));
 }
 
+export const getAllDrivers: (token: string) => Promise<string[]> = (token) => {
+    return resolveWithLogs(axios.get(`http://${serverURL}/pred/allDrivers`, authConfig(token)));
+}
+
+export const getPredictionsPaged: (token: string, page: number) => Promise<Prediction[]> = (token, page) => {
+    return resolveWithLogs(axios.get(predictionURL + "/page/" + page, authConfig(token)));
+}
+
 export const getPredictions: (token: string) => Promise<Prediction[]> = (token) => {
     return resolveWithLogs(axios.get(predictionURL, authConfig(token)));
 }
