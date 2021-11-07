@@ -1,6 +1,7 @@
 import Router from "koa-router";
-import { broadcast } from "../utils";
+import {broadcast} from "../utils";
 import PredictionStore from "./store";
+import {Prediction} from "./Prediction";
 
 export const predictionRouter = new Router();
 
@@ -10,26 +11,32 @@ const DRIVER_NAMES = ["Hamilton", "Bottas", "Verstappen", "Perez", "Sainz", "Lec
     "Tsunoda", "Russell", "Latifi", "Raikkonen", "Giovinazzi", "Schumacher", "Mazepin"]
 const CURRENT_SEASON = new Date().getFullYear();
 
-let predictions = [];
-
-const createPrediction = async (context, prediction) => {
-    const name = RACE_NAMES[(predictions.length % 22) | 0] + CURRENT_SEASON;
-    const driverOrder = [...DRIVER_NAMES];
+const createPrediction = async (context) => {
     const userID = context.state.user._id;
-    prediction.name = name;
-    prediction.driverOrder = driverOrder;
+    const predictionCount = (await PredictionStore.find({userID})).length;
+    const name = RACE_NAMES[(predictionCount % 22) | 0] + CURRENT_SEASON;
+    const driverOrder = [...DRIVER_NAMES];
+    let prediction = new Prediction({name, driverOrder});
     prediction.userID = userID;
 
-    context.response.body = await PredictionStore.insert(prediction);
-    context.response.status = 201; // CREATED
-    broadcast({event: 'created', payload: {prediction}});
+    try {
+        context.response.body = await PredictionStore.insert(prediction);
+        context.response.status = 201; // CREATED
+        broadcast({event: 'created', payload: {prediction}});
+    }
+    catch (e) {
+        console.log(e.message);
+        context.response.body = { message: e.message };
+        context.response.status = 400; // bad request
+    }
 };
 
 const updatePrediction = async (context) => {
     const name = context.params.name;
     const prediction = context.request.body;
-
     const predictionName = prediction.name;
+    const predictionID = prediction._id;
+
     if (predictionName && name !== prediction.name) {
         context.response.body = {issue: [{error: `Param name and body name should be the same`}]};
         context.response.status = 400; // BAD REQUEST
@@ -41,23 +48,23 @@ const updatePrediction = async (context) => {
         return;
     }
 
-    const index = predictions.findIndex(prediction => prediction.name === name);
-    if (index === -1) {
-        context.response.body = {issue: [{error: `prediction with name ${name} not found`}]};
-        context.response.status = 400; // BAD REQUEST
-        return;
-    }
+    prediction.userID = context.state.user._id;
+    const updatedCount = await PredictionStore.update({_id: predictionID}, prediction);
 
-    predictions[index] = prediction;
-    context.response.body = prediction;
-    context.response.status = 200; // OK
-    broadcast({event: 'updated', payload: {prediction}});
+    if (updatedCount === 1) {
+        context.response.body = prediction;
+        context.response.status = 200; // OK
+        broadcast({event: 'updated', payload: {prediction}});
+    }
+    else {
+        context.response.body = { message: 'Resource no longer exists' };
+        context.response.status = 405; // method not allowed
+    }
 }
 
 predictionRouter.get('/prediction', async (context) => {
     const userID = context.state.user._id;
-    predictions = await PredictionStore.find({userID});
-    context.response.body = predictions;
+    context.response.body = await PredictionStore.find({userID});
     context.response.status = 200;
 });
 
@@ -65,7 +72,6 @@ predictionRouter.get('/prediction/:name', async (context) => {
     const userID = context.state.user._id;
     const predictionName = context.request.params.name;
     const prediction = await PredictionStore.findOne({predictionName});
-    //const prediction = predictions.find(prediction => predictionName === prediction.name);
 
     if (prediction) {
         if (prediction.userID === userID) {

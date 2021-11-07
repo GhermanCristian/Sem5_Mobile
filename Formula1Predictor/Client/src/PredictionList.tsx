@@ -15,13 +15,15 @@ import {add} from 'ionicons/icons';
 import PredictionListItem from './PredictionListItem';
 import {PredictionContext} from './PredictionProvider';
 import {createPrediction} from "./PredictionAPI";
+import {getLogger} from "./core";
+
+const log = getLogger('ItemList');
 
 const PredictionList: React.FC<RouteComponentProps> = ({history}) => {
     const {predictions, fetching, fetchingError, token} = useContext(PredictionContext);
 
     const addNewPrediction = async () => {
         await createPrediction(token);
-        history.push('/'); // reload page
     }
 
     return (

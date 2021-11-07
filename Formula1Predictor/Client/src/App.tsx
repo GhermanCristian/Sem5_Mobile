@@ -31,12 +31,12 @@ const App: React.FC = () => (
         <IonReactRouter>
             <IonRouterOutlet>
                 <AuthProvider>
+                    <Route path="/login" component={Login} exact={true}/>
                     <PredictionProvider>
                         <PrivateRoute path="/predictions" component={PredictionList} exact={true}/>
                         <PrivateRoute path="/prediction" component={PredictionEdit} exact={true}/>
                         <PrivateRoute path="/prediction/:name" component={PredictionEdit} exact={true}/>
                     </PredictionProvider>
-                    <Route path="/login" component={Login} exact={true}/>
                     <Route exact path="/" render={() => <Redirect to="/predictions"/>}/>
                 </AuthProvider>
             </IonRouterOutlet>
