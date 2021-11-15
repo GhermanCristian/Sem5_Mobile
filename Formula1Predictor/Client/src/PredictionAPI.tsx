@@ -1,6 +1,8 @@
 import axios from 'axios';
 import {authConfig, getLogger} from './core';
 import {Prediction} from './Prediction';
+import { Plugins} from '@capacitor/core';
+const { Storage } = Plugins;
 
 const log = getLogger('predictionApi');
 
@@ -17,14 +19,6 @@ function resolveWithLogs<T>(promise: Promise<ResponseProps<T>>): Promise<T> {
         .catch(err => Promise.reject(err));
 }
 
-export const getAllDrivers: (token: string) => Promise<string[]> = (token) => {
-    return resolveWithLogs(axios.get(`http://${serverURL}/pred/allDrivers`, authConfig(token)));
-}
-
-export const getPredictionsPaged: (token: string, page: number) => Promise<Prediction[]> = (token, page) => {
-    return resolveWithLogs(axios.get(predictionURL + "/page/" + page, authConfig(token)));
-}
-
 export const getPredictions: (token: string) => Promise<Prediction[]> = (token) => {
     return resolveWithLogs(axios.get(predictionURL, authConfig(token)));
 }
@@ -35,6 +29,51 @@ export const createPrediction: (token: string) => Promise<Prediction[]> = (token
 
 export const updatePrediction: (token: string, prediction: Prediction) => Promise<Prediction[]> = (token, prediction) => {
     return resolveWithLogs(axios.put(`${predictionURL}/${prediction.name}`, prediction, authConfig(token)));
+}
+
+function areDifferent(prediction1: Prediction, prediction2: Prediction) {
+    return prediction1.name !== prediction2.name || prediction1.driverOrder !== prediction2.driverOrder;
+}
+
+export const syncData: (token: string) => Promise<Prediction[]> = async token => {
+    try {
+        const {keys} = await Storage.keys();
+        const result: Promise<ResponseProps<Prediction[]>> = axios.get(predictionURL, authConfig(token));
+        result.then(async result => {
+            for (const i of keys) {
+                if (i !== 'token') {
+                    const predictionOnServer = result.data.find(prediction => prediction.name === i);
+                    const predictionLocal = JSON.parse((await Storage.get({key: i})).value!);
+
+                    console.log('PREDICTION ON SERVER: ' + JSON.stringify(predictionOnServer));
+                    console.log('PREDICTION LOCALLY: ' + predictionLocal.value!);
+
+                    if (predictionOnServer !== undefined && areDifferent(predictionOnServer, predictionLocal)) {
+                        console.log('UPDATE ' + predictionLocal);
+                        axios.put(`${predictionURL}/${predictionLocal.name}`, predictionLocal, authConfig(token));
+                    }
+                    else if (predictionOnServer === undefined) {
+                        console.log('CREATE' + predictionLocal);
+                        axios.post(`${predictionURL}/move_prediction`, predictionLocal, authConfig(token));
+                    }
+                }
+            }
+        }).catch(err => {
+            if (err.response) {
+                console.log('client received an error response (5xx, 4xx)');
+            }
+            else if (err.request) {
+                console.log('client never received a response, or request never left');
+            }
+            else {
+                console.log('anything else');
+            }
+        });
+        return resolveWithLogs(result);
+    }
+    catch (error) {
+        throw error;
+    }
 }
 
 interface MessageData {

@@ -1,22 +1,27 @@
-import React, {useCallback, useContext, useEffect, useReducer} from 'react';
+import React, {useCallback, useContext, useEffect, useReducer, useState} from 'react';
 import PropTypes from 'prop-types';
 import {getLogger} from './core';
 import {Prediction} from './Prediction';
-import {getPredictions, newWebSocket, updatePrediction} from './PredictionAPI';
+import {getPredictions, newWebSocket, syncData, updatePrediction} from './PredictionAPI';
 import {AuthContext} from "./auth";
+import {Plugins} from "@capacitor/core";
+import {Network} from "@capacitor/network";
 
 const log = getLogger('PredictionProvider');
+const { Storage } = Plugins;
 
 type SavePredictionFunction = (prediction: Prediction) => Promise<any>;
 
 export interface PredictionsState {
     predictions?: Prediction[],
     fetching: boolean,
-    fetchingError?: Error | null,
+    fetchingError? : Error | null,
     saving: boolean,
-    token: string,
-    savingError?: Error | null,
-    savePrediction?: SavePredictionFunction,
+    savingError? : Error | null,
+    savePrediction? : SavePredictionFunction,
+    connectedNetwork?: boolean,
+    setSavedOffline?: Function,
+    savedOffline?: boolean
 }
 
 interface ActionProps {
@@ -26,8 +31,7 @@ interface ActionProps {
 
 const initialState: PredictionsState = {
     fetching: false,
-    saving: false,
-    token: ""
+    saving: false
 };
 
 const FETCH_PREDICTIONS_STARTED = 'FETCH_PREDICTIONS_STARTED';
@@ -81,19 +85,40 @@ interface PredictionProviderProps {
 
 export const PredictionProvider: React.FC<PredictionProviderProps> = ({children}) => {
     const { token } = useContext(AuthContext);
+    const [connectedNetworkStatus, setConnectedNetworkStatus] = useState<boolean>(false);
+    Network.getStatus().then((status: { connected: boolean | ((prevState: boolean) => boolean); }) => setConnectedNetworkStatus(status.connected));
+    const [savedOffline, setSavedOffline] = useState<boolean>(false);
+    useEffect(networkEffect, [token, setConnectedNetworkStatus]);
+
     const [state, dispatch] = useReducer(reducer, initialState);
     const {predictions, fetching, fetchingError, saving, savingError} = state;
-
     useEffect(getPredictionsEffect, [token]);
     useEffect(wsEffect, [token]);
 
     const savePrediction = useCallback<SavePredictionFunction>(savePredictionCallback, [token]);
-    const value = {predictions, fetching, fetchingError, saving, savingError, savePrediction, token};
+    const value = {predictions, fetching, fetchingError, saving, savingError, savePrediction, connectedNetworkStatus, savedOffline, setSavedOffline };
     return (
         <PredictionContext.Provider value={value}>
             {children}
         </PredictionContext.Provider>
     );
+
+    function networkEffect() {
+        console.log("network effect");
+        let canceled = false;
+        Network.addListener('networkStatusChange', async (status: { connected: boolean | ((prevState: boolean) => boolean); }) => {
+            if (canceled) return;
+            const connected = status.connected;
+            if (connected) {
+                console.log("networkEffect - SYNC data");
+                await syncData(token);
+            }
+            setConnectedNetworkStatus(status.connected);
+        });
+        return () => {
+            canceled = true;
+        }
+    }
 
     function getPredictionsEffect() {
         let canceled = false;
@@ -106,32 +131,53 @@ export const PredictionProvider: React.FC<PredictionProviderProps> = ({children}
             if (!token?.trim()) {
                 return;
             }
-            try {
-                log('fetchPredictions started');
-                dispatch({type: FETCH_PREDICTIONS_STARTED});
-                const predictions = await getPredictions(token);
-                log('fetchPredictions succeeded');
-                if (!canceled) {
-                    dispatch({type: FETCH_PREDICTIONS_SUCCEEDED, payload: {predictions}});
+            if (!navigator?.onLine) { // offline
+                let storageKeys = Storage.keys();
+                const [predictions] = await Promise.all([storageKeys.then(async function (storageKeys: { keys: string | any[]; }) {
+                    const saved = [];
+                    for (let i = 0; i < storageKeys.keys.length; i++) {
+                        if (storageKeys.keys[i] !== "token") {
+                            const prediction = await Storage.get({key: storageKeys.keys[i]});
+                            if (prediction.value != null) {
+                                saved.push(JSON.parse(prediction.value));
+                            }
+                        }
+                    }
+                    return saved;
+                })]);
+                dispatch({type: FETCH_PREDICTIONS_SUCCEEDED, payload: {items: predictions}});
+            }
+            else {
+                try {
+                    log('fetchPredictions started');
+                    dispatch({type: FETCH_PREDICTIONS_STARTED});
+                    const predictions = await getPredictions(token);
+                    log('fetchPredictions successful');
+                    log(predictions);
+                    if (!canceled) {
+                        dispatch({type: FETCH_PREDICTIONS_SUCCEEDED, payload: {predictions: predictions}})
+                    }
                 }
-            } catch (error) {
-                log('fetchPredictions failed');
-                dispatch({type: FETCH_PREDICTIONS_FAILED, payload: {error}});
+                catch (error) {
+
+                }
             }
         }
     }
 
     async function savePredictionCallback(prediction: Prediction) {
-        try {
+        if (navigator.onLine) {
             log('savePrediction started');
-            dispatch({type: SAVE_PREDICTION_STARTED});
+            dispatch({ type: SAVE_PREDICTION_STARTED });
             const savedPrediction = await updatePrediction(token, prediction);
-            log('savePrediction succeeded');
+            log('savePrediction successful');
             dispatch({type: SAVE_PREDICTION_SUCCEEDED, payload: {prediction: savedPrediction}});
         }
-        catch (error) {
-            log('savePrediction failed');
-            dispatch({type: SAVE_PREDICTION_FAILED, payload: {error}});
+        else {
+            const tempID = '_' + Math.random().toString(36).substr(2, 9);
+            await Storage.set({key: tempID, value: JSON.stringify({name: prediction.name, driverOrder: prediction.driverOrder})});
+            dispatch({type: SAVE_PREDICTION_SUCCEEDED, payload: {prediction : prediction}});
+            setSavedOffline(true);
         }
     }
 
@@ -146,10 +192,7 @@ export const PredictionProvider: React.FC<PredictionProviderProps> = ({children}
                 }
                 const {event, payload: {prediction}} = message;
                 log(`ws message, prediction ${event}`);
-                if (event === 'created') {
-
-                }
-                else if (event === 'updated') {
+                if (event === 'created' || event === 'updated') {
                     dispatch({type: SAVE_PREDICTION_SUCCEEDED, payload: {prediction}});
                 }
             });

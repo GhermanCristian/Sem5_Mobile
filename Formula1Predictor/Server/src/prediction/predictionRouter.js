@@ -100,6 +100,11 @@ predictionRouter.post('/prediction', async (context) => {
     await createPrediction(context);
 });
 
+predictionRouter.post('/move_prediction', async (context) => {
+    const prediction = context.request.body;
+    await PredictionStore.insert(prediction);
+});
+
 predictionRouter.put('/prediction/:name', async (context) => {
     await updatePrediction(context);
 });
