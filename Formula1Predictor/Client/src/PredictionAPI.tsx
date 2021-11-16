@@ -1,8 +1,7 @@
 import axios from 'axios';
 import {authConfig, getLogger} from './core';
 import {Prediction} from './Prediction';
-import { Plugins} from '@capacitor/core';
-const { Storage } = Plugins;
+import { Storage } from '@capacitor/storage';
 
 const log = getLogger('predictionApi');
 
@@ -42,7 +41,7 @@ export const syncData: (token: string) => Promise<Prediction[]> = async token =>
         result.then(async result => {
             for (const i of keys) {
                 if (i !== 'token') {
-                    const predictionOnServer = result.data.find(prediction => prediction.name === i);
+                    const predictionOnServer = result.data.find(prediction => prediction._id === i);
                     const predictionLocal = JSON.parse((await Storage.get({key: i})).value!);
 
                     console.log('PREDICTION ON SERVER: ' + JSON.stringify(predictionOnServer));

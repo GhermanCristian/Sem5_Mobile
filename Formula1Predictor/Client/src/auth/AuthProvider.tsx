@@ -79,7 +79,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         async function authenticate() {
             var token = await Storage.get({key : "token"});
-            token.value = null; // disconnects the user at each refresh (will be removed)
+            //token.value = null; // disconnects the user at each refresh (will be removed)
             if (token.value !== null) {
                 setState({...state, token: token.value, pendingAuthentication: false, isAuthenticated: true, isAuthenticating: false});
             }

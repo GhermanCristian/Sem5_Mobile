@@ -4,13 +4,12 @@ import {getLogger} from './core';
 import {Prediction} from './Prediction';
 import {getPredictions, newWebSocket, syncData, updatePrediction} from './PredictionAPI';
 import {AuthContext} from "./auth";
-import {Plugins} from "@capacitor/core";
 import {Network} from "@capacitor/network";
+import { Storage } from '@capacitor/storage';
 
 const log = getLogger('PredictionProvider');
-const { Storage } = Plugins;
 
-type SavePredictionFunction = (prediction: Prediction) => Promise<any>;
+type SavePredictionFunction = (prediction: any) => Promise<any>;
 
 export interface PredictionsState {
     predictions?: Prediction[],
@@ -174,8 +173,8 @@ export const PredictionProvider: React.FC<PredictionProviderProps> = ({children}
             dispatch({type: SAVE_PREDICTION_SUCCEEDED, payload: {prediction: savedPrediction}});
         }
         else {
-            const tempID = '_' + Math.random().toString(36).substr(2, 9);
-            await Storage.set({key: tempID, value: JSON.stringify({name: prediction.name, driverOrder: prediction.driverOrder})});
+            prediction._id = (prediction._id == undefined) ? '_' + Math.random().toString(36).substr(2, 9) : prediction._id;
+            await Storage.set({key: prediction._id!, value: JSON.stringify({_id: prediction._id, name: prediction.name, driverOrder: prediction.driverOrder})});
             dispatch({type: SAVE_PREDICTION_SUCCEEDED, payload: {prediction : prediction}});
             setSavedOffline(true);
         }

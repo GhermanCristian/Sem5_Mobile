@@ -34,7 +34,7 @@ const PredictionList: React.FC<RouteComponentProps> = ({history}) => {
     const [status, setStatus] = useState<boolean>(true);
     const {savedOffline} = useContext(PredictionContext);
 
-    const driverNames = ["Hamilton", "Bottas", "Verstappen", "Perez", "Sainz", "Leclerc", "Norris", "Ricciardo", "Vettel", "Stroll", "Alonso", "Ocon", "Gasly",
+    const driverNames = ["None", "Hamilton", "Bottas", "Verstappen", "Perez", "Sainz", "Leclerc", "Norris", "Ricciardo", "Vettel", "Stroll", "Alonso", "Ocon", "Gasly",
         "Tsunoda", "Russell", "Latifi", "Raikkonen", "Giovinazzi", "Schumacher", "Mazepin"];
     // TODO - get this from the server
 
@@ -52,7 +52,10 @@ const PredictionList: React.FC<RouteComponentProps> = ({history}) => {
     }, [predictions]);
 
     useEffect(() => {
-        if (predictions && filter) {
+        if (filter === "None") {
+            setVisibleItems(predictions);
+        }
+        else if (predictions && filter) {
             setVisibleItems(predictions.filter(prediction => prediction.driverOrder[0] === filter));
         }
     }, [filter]);
@@ -105,8 +108,8 @@ const PredictionList: React.FC<RouteComponentProps> = ({history}) => {
                 <IonLoading isOpen={fetching} message="Fetching predictions"/>
                 {predictions && (
                     <IonList>
-                        {visibleItems?.map(({name, driverOrder}) =>
-                            <PredictionListItem key={name} name={name} driverOrder={driverOrder}
+                        {visibleItems?.map(({_id, name, driverOrder}) =>
+                            <PredictionListItem key={name} name={name} driverOrder={driverOrder} _id={_id}
                                                 onEdit={name => history.push(`/prediction/${name}`)}/>)}
                     </IonList>
                 )}
