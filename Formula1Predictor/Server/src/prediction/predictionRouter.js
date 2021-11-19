@@ -17,7 +17,7 @@ const createPrediction = async (context) => {
     const predictionCount = (await PredictionStore.find({userID})).length;
     const name = RACE_NAMES[(predictionCount % 22) | 0] + CURRENT_SEASON;
     const driverOrder = [...DRIVER_NAMES];
-    let prediction = new Prediction({name, driverOrder});
+    let prediction = new Prediction({name, driverOrder, undefined});
     prediction.userID = userID;
 
     try {
@@ -33,19 +33,13 @@ const createPrediction = async (context) => {
 };
 
 const updatePrediction = async (context) => {
-    const name = context.params.name;
+    const id = context.params.id;
     const prediction = context.request.body;
-    const predictionName = prediction.name;
     const predictionID = prediction._id;
 
-    if (predictionName && name !== prediction.name) {
-        context.response.body = {issue: [{error: `Param name and body name should be the same`}]};
+    if (predictionID && predictionID !== id) {
+        context.response.body = {issue: [{error: `Param ID and body ID should be the same`}]};
         context.response.status = 400; // BAD REQUEST
-        return;
-    }
-
-    if (!predictionName) {
-        await createPrediction(context);
         return;
     }
 
@@ -105,6 +99,6 @@ predictionRouter.post('/move_prediction', async (context) => {
     await PredictionStore.insert(prediction);
 });
 
-predictionRouter.put('/prediction/:name', async (context) => {
+predictionRouter.put('/prediction/:id', async (context) => {
     await updatePrediction(context);
 });

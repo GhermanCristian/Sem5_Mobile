@@ -174,7 +174,7 @@ export const PredictionProvider: React.FC<PredictionProviderProps> = ({children}
         }
         else {
             prediction._id = (prediction._id == undefined) ? '_' + Math.random().toString(36).substr(2, 9) : prediction._id;
-            await Storage.set({key: prediction._id!, value: JSON.stringify({_id: prediction._id, name: prediction.name, driverOrder: prediction.driverOrder})});
+            await Storage.set({key: prediction._id!, value: JSON.stringify({_id: prediction._id, name: prediction.name, driverOrder: prediction.driverOrder, webViewPath: prediction.webViewPath})});
             dispatch({type: SAVE_PREDICTION_SUCCEEDED, payload: {prediction : prediction}});
             setSavedOffline(true);
         }

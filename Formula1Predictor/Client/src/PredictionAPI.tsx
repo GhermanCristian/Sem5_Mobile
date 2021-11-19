@@ -22,12 +22,12 @@ export const getPredictions: (token: string) => Promise<Prediction[]> = (token) 
     return resolveWithLogs(axios.get(predictionURL, authConfig(token)));
 }
 
-export const createPrediction: (token: string) => Promise<Prediction[]> = (token) => {
+export const createPrediction: (token: string) => Promise<Prediction> = (token) => {
     return resolveWithLogs(axios.post(predictionURL, {}, authConfig(token)));
 }
 
-export const updatePrediction: (token: string, prediction: Prediction) => Promise<Prediction[]> = (token, prediction) => {
-    return resolveWithLogs(axios.put(`${predictionURL}/${prediction.name}`, prediction, authConfig(token)));
+export const updatePrediction: (token: string, prediction: Prediction) => Promise<Prediction> = (token, prediction) => {
+    return resolveWithLogs(axios.put(`${predictionURL}/${prediction._id}`, prediction, authConfig(token)));
 }
 
 function areDifferent(prediction1: Prediction, prediction2: Prediction) {
@@ -45,11 +45,11 @@ export const syncData: (token: string) => Promise<Prediction[]> = async token =>
                     const predictionLocal = JSON.parse((await Storage.get({key: i})).value!);
 
                     console.log('PREDICTION ON SERVER: ' + JSON.stringify(predictionOnServer));
-                    console.log('PREDICTION LOCALLY: ' + predictionLocal.value!);
+                    console.log('PREDICTION LOCALLY: ' + predictionLocal);
 
                     if (predictionOnServer !== undefined && areDifferent(predictionOnServer, predictionLocal)) {
                         console.log('UPDATE ' + predictionLocal);
-                        axios.put(`${predictionURL}/${predictionLocal.name}`, predictionLocal, authConfig(token));
+                        axios.put(`${predictionURL}/${predictionLocal._id}`, predictionLocal, authConfig(token));
                     }
                     else if (predictionOnServer === undefined) {
                         console.log('CREATE' + predictionLocal);
