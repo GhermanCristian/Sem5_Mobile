@@ -1,9 +1,8 @@
-import {useCamera} from '@ionic/react-hooks/camera';
-import {CameraPhoto, CameraResultType, CameraSource} from "@capacitor/camera";
-import {useEffect, useState} from 'react';
-import {base64FromPath, useFilesystem} from '@ionic/react-hooks/filesystem';
-import {useStorage} from '@ionic/react-hooks/storage';
-import {FilesystemDirectory} from "@capacitor/filesystem";
+import { useCamera } from '@ionic/react-hooks/camera';
+import { CameraPhoto, CameraResultType, CameraSource, FilesystemDirectory } from '@capacitor/core';
+import { useEffect, useState } from 'react';
+import { base64FromPath, useFilesystem } from '@ionic/react-hooks/filesystem';
+import { useStorage } from '@ionic/react-hooks/storage';
 
 export interface Photo {
     filepath: string;
@@ -17,16 +16,23 @@ export function usePhotoGallery() {
     const [photos, setPhotos] = useState<Photo[]>([]);
 
     const takePhoto = async () => {
-        const cameraPhoto = await getPhoto({
-            resultType: CameraResultType.Uri,
-            source: CameraSource.Camera,
-            quality: 100
-        });
-        const fileName = new Date().getTime() + '.jpeg';
-        const savedFileImage = await savePicture(cameraPhoto, fileName);
-        const newPhotos = [savedFileImage, ...photos];
-        setPhotos(newPhotos);
-        set(PHOTO_STORAGE, JSON.stringify(newPhotos));
+        try {
+            const cameraPhoto = await getPhoto({
+                resultType: CameraResultType.Uri,
+                source: CameraSource.Camera,
+                quality: 100
+            });
+            const fileName = new Date().getTime() + '.jpeg';
+            const savedFileImage = await savePicture(cameraPhoto, fileName);
+            const newPhotos = [savedFileImage, ...photos];
+            setPhotos(newPhotos);
+            await set(PHOTO_STORAGE, JSON.stringify(newPhotos));
+            return savedFileImage.webviewPath;
+        }
+        catch (e) {
+            console.log("error - takephoto");
+            return '';
+        }
     };
 
     const {deleteFile, readFile, writeFile} = useFilesystem();
@@ -47,23 +53,37 @@ export function usePhotoGallery() {
     const {get, set} = useStorage();
     useEffect(() => {
         const loadSaved = async () => {
-            const photosString = await get(PHOTO_STORAGE);
-            const photos = (photosString ? JSON.parse(photosString) : []) as Photo[];
+            let photosString: string | null = "";
+            try {
+                photosString = await get(PHOTO_STORAGE);
+            }
+            catch (e) {
+                console.log(e);
+            }
+
+            const photos = (photosString && photosString.length > 0 ? JSON.parse(photosString) : []) as Photo[];
             for (let photo of photos) {
-                const file = await readFile({
-                    path: photo.filepath,
-                    directory: FilesystemDirectory.Data
-                });
-                photo.webviewPath = `data:image/jpeg;base64,${file.data}`;
+                try {
+                    const file = await readFile({
+                        path: photo.filepath,
+                        directory: FilesystemDirectory.Data
+                    });
+                    photo.webviewPath = `data:image/jpeg;base64,${file.data}`;
+                }
+                catch (e) {
+                    console.log("error - loadsaved");
+                    setPhotos([]);
+                    return;
+                }
             }
             setPhotos(photos);
         };
-        loadSaved();
+        loadSaved().then(r => console.log(r), error => console.log(error));
     }, [get, readFile]);
 
     const deletePhoto = async (photo: Photo) => {
         const newPhotos = photos.filter(p => p.filepath !== photo.filepath);
-        set(PHOTO_STORAGE, JSON.stringify(newPhotos));
+        await set(PHOTO_STORAGE, JSON.stringify(newPhotos));
         const filename = photo.filepath.substr(photo.filepath.lastIndexOf('/') + 1);
         await deleteFile({
             path: filename,

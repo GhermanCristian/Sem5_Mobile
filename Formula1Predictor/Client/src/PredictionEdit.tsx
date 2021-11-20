@@ -14,6 +14,7 @@ import {PredictionContext} from './PredictionProvider';
 import {RouteComponentProps} from 'react-router';
 import {Prediction} from './Prediction';
 import {ItemReorderEventDetail} from '@ionic/core';
+import {usePhotoGallery} from "./usePhotoGallery";
 
 interface PredictionEditProps extends RouteComponentProps<{
     name?: string;
@@ -24,6 +25,9 @@ const PredictionEdit: React.FC<PredictionEditProps> = ({history, match}) => {
     const {predictions, saving, savingError, savePrediction} = useContext(PredictionContext);
     const [driverOrder, setDriverOrder] = useState<string[]>([]);
     const [prediction, setPrediction] = useState<Prediction>();
+    const [webViewPath, setWebViewPath] = useState('');
+
+    const {takePhoto} = usePhotoGallery();
 
     useEffect(() => {
         const predictionName = match.params.name || '';
@@ -31,11 +35,12 @@ const PredictionEdit: React.FC<PredictionEditProps> = ({history, match}) => {
         setPrediction(prediction);
         if (prediction) {
             setDriverOrder(prediction.driverOrder);
+            setWebViewPath(prediction.webViewPath);
         }
     }, [match.params.name, predictions]);
 
     const handleSave = () => {
-        const editedPrediction = prediction ? {...prediction, driverOrder} : {driverOrder};
+        const editedPrediction = prediction ? {...prediction, driverOrder, webViewPath} : {driverOrder, webViewPath};
         savePrediction && savePrediction(editedPrediction).then(() => history.goBack());
     };
 
@@ -43,6 +48,16 @@ const PredictionEdit: React.FC<PredictionEditProps> = ({history, match}) => {
         const driverMove = prediction ? prediction.driverOrder.splice(event.detail.from, 1)[0] : '';
         prediction?.driverOrder.splice(event.detail.to, 0, driverMove);
         event.detail.complete();
+    }
+
+    async function handlePhotoChange() {
+        const image = await takePhoto();
+        if (!image) {
+            setWebViewPath('');
+        }
+        else {
+            setWebViewPath(image);
+        }
     }
 
     return (
@@ -62,6 +77,9 @@ const PredictionEdit: React.FC<PredictionEditProps> = ({history, match}) => {
             </IonHeader>
             <IonContent>
                 <IonLabel>Race: {prediction?.name}</IonLabel>
+                <IonRow style={{height: "15px"}}></IonRow>
+                {webViewPath && (<img onClick={handlePhotoChange} src={webViewPath} width={'100px'} height={'100px'}/>)}
+                {!webViewPath && (<img onClick={handlePhotoChange} src={'https://static.thenounproject.com/png/187803-200.png'} width={'100px'} height={'100px'}/>)}
                 <IonRow style={{height: "15px"}}></IonRow>
                 <IonLabel>Standings</IonLabel>
                 <IonReorderGroup disabled={false} onIonItemReorder={reorderDrivers}>{

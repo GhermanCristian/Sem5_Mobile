@@ -1,7 +1,8 @@
 import axios from 'axios';
 import {authConfig, getLogger} from './core';
 import {Prediction} from './Prediction';
-import { Storage } from '@capacitor/storage';
+import { Plugins } from "@capacitor/core";
+const { Storage } = Plugins;
 
 const log = getLogger('predictionApi');
 
