@@ -15,6 +15,8 @@ import {RouteComponentProps} from 'react-router';
 import {Prediction} from './Prediction';
 import {ItemReorderEventDetail} from '@ionic/core';
 import {usePhotoGallery} from "./usePhotoGallery";
+import {MyMap} from "./MyMap";
+import {useMyLocation} from "./useMyLocation";
 
 interface PredictionEditProps extends RouteComponentProps<{
     name?: string;
@@ -26,6 +28,13 @@ const PredictionEdit: React.FC<PredictionEditProps> = ({history, match}) => {
     const [driverOrder, setDriverOrder] = useState<string[]>([]);
     const [prediction, setPrediction] = useState<Prediction>();
     const [webViewPath, setWebViewPath] = useState('');
+    const [latitude, setLatitude] = useState<number | undefined>(undefined);
+    const [longitude, setLongitude] = useState<number | undefined>(undefined);
+    const [currentLatitude, setCurrentLatitude] = useState<number | undefined>(undefined);
+    const [currentLongitude, setCurrentLongitude] = useState<number | undefined>(undefined);
+
+    const location = useMyLocation();
+    const {latitude : lat, longitude : lng} = location.position?.coords || {};
 
     const {takePhoto} = usePhotoGallery();
 
@@ -36,11 +45,24 @@ const PredictionEdit: React.FC<PredictionEditProps> = ({history, match}) => {
         if (prediction) {
             setDriverOrder(prediction.driverOrder);
             setWebViewPath(prediction.webViewPath);
+            setLatitude(prediction.latitude);
+            setLongitude(prediction.longitude);
         }
     }, [match.params.name, predictions]);
 
+    useEffect(() => {
+        if (latitude === undefined && longitude === undefined) {
+            setCurrentLatitude(lat);
+            setCurrentLongitude(lng);
+        }
+        else {
+            setCurrentLatitude(latitude);
+            setCurrentLongitude(longitude);
+        }
+    }, [lat, lng, longitude, latitude]);
+
     const handleSave = () => {
-        const editedPrediction = prediction ? {...prediction, driverOrder, webViewPath} : {driverOrder, webViewPath};
+        const editedPrediction = prediction ? {...prediction, driverOrder, webViewPath, latitude, longitude} : {driverOrder, webViewPath, latitude, longitude};
         savePrediction && savePrediction(editedPrediction).then(() => history.goBack());
     };
 
@@ -58,6 +80,11 @@ const PredictionEdit: React.FC<PredictionEditProps> = ({history, match}) => {
         else {
             setWebViewPath(image);
         }
+    }
+
+    function setLocation() {
+        setLatitude(currentLatitude);
+        setLongitude(currentLongitude);
     }
 
     return (
@@ -80,7 +107,23 @@ const PredictionEdit: React.FC<PredictionEditProps> = ({history, match}) => {
                 <IonRow style={{height: "15px"}}></IonRow>
                 {webViewPath && (<img onClick={handlePhotoChange} src={webViewPath} width={'100px'} height={'100px'}/>)}
                 {!webViewPath && (<img onClick={handlePhotoChange} src={'https://static.thenounproject.com/png/187803-200.png'} width={'100px'} height={'100px'}/>)}
+
                 <IonRow style={{height: "15px"}}></IonRow>
+
+                <IonItem>
+                    <IonLabel>Do you know geography ?</IonLabel>
+                    <IonButton onClick={setLocation}>Set location</IonButton>
+                </IonItem>
+                {lat && lng &&
+                <MyMap
+                    lat={currentLatitude}
+                    lng={currentLongitude}
+                    onMapClick={(e: any) => setLatitude(e.latLng.lat())}
+                    onMarkerClick={(e: any) => setLongitude(e.latLng.lng())}
+                />
+                }
+                <IonRow style={{height: "15px"}}></IonRow>
+
                 <IonLabel>Standings</IonLabel>
                 <IonReorderGroup disabled={false} onIonItemReorder={reorderDrivers}>{
                     prediction?.driverOrder.map((driverName) =>

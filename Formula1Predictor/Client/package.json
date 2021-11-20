@@ -42,7 +42,8 @@
         "workbox-range-requests": "^5.1.4",
         "workbox-routing": "^5.1.4",
         "workbox-strategies": "^5.1.4",
-        "workbox-streams": "^5.1.4"
+        "workbox-streams": "^5.1.4",
+        "react-google-maps": "^9.4.5"
     },
     "scripts": {
         "start": "react-scripts start",
@@ -69,7 +70,8 @@
         ]
     },
     "devDependencies": {
-        "@capacitor/cli": "2.4.2"
+        "@capacitor/cli": "2.4.2",
+        "@types/recompose": "^0.30.7"
     },
     "description": "An Ionic project"
 }

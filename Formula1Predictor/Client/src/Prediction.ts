@@ -3,4 +3,6 @@ export interface Prediction {
     name?: string;
     driverOrder: string[];
     webViewPath: string;
+    latitude: number;
+    longitude: number;
 }
