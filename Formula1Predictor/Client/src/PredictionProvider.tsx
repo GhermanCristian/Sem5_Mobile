@@ -4,7 +4,7 @@ import {getLogger} from './core';
 import {Prediction} from './Prediction';
 import {getPredictions, newWebSocket, syncData, updatePrediction} from './PredictionAPI';
 import {AuthContext} from "./auth";
-import {Network} from "@capacitor/network";
+import {Network} from "@capacitor/core";
 import { Plugins } from "@capacitor/core";
 const { Storage } = Plugins;
 

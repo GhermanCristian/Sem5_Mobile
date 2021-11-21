@@ -16,7 +16,7 @@ import {
 } from '@ionic/react';
 import {add} from 'ionicons/icons';
 import PredictionListItem from './PredictionListItem';
-import {Network} from "@capacitor/network";
+import {Network} from "@capacitor/core";
 import {AuthContext} from "./auth";
 import {PredictionContext} from "./PredictionProvider";
 import {Prediction} from "./Prediction";
