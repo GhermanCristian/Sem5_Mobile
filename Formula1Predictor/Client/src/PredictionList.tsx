@@ -1,6 +1,7 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {RouteComponentProps} from 'react-router';
 import {
+    createAnimation,
     IonChip,
     IonContent,
     IonFab,
@@ -128,7 +129,7 @@ const PredictionList: React.FC<RouteComponentProps> = ({history}) => {
                 </IonFab>
 
                 <IonFab vertical="bottom" horizontal="start" slot="fixed">
-                    <IonFabButton onClick={() => logout?.()}>
+                    <IonFabButton onMouseOver={animateLogoutButtonOnHover} className={"logoutButton"} onClick={() => logout?.()}>
                         Logout
                     </IonFabButton>
                 </IonFab>
@@ -139,6 +140,22 @@ const PredictionList: React.FC<RouteComponentProps> = ({history}) => {
             </IonContent>
         </IonPage>
     );
+
+    function animateLogoutButtonOnHover() {
+        const logoutButton = document.querySelector('.logoutButton');
+        if (logoutButton) {
+            const animation = createAnimation()
+                .addElement(logoutButton)
+                .duration(1000)
+                .direction('alternate')
+                .keyframes([
+                    { offset: 0, transform: 'scale(3)', opacity: '1' },
+                    { offset: 0.5, transform: 'scale(2)', opacity: '0.5' },
+                    { offset: 1, transform: 'scale(1)', opacity: '1' }
+                ]);
+            animation.play();
+        }
+    }
 };
 
 export default PredictionList;
