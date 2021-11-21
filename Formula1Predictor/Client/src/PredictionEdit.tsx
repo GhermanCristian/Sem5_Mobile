@@ -16,7 +16,6 @@ import {Prediction} from './Prediction';
 import {ItemReorderEventDetail} from '@ionic/core';
 import {usePhotoGallery} from "./usePhotoGallery";
 import {MyMap} from "./MyMap";
-import {useMyLocation} from "./useMyLocation";
 
 interface PredictionEditProps extends RouteComponentProps<{
     name?: string;
@@ -33,8 +32,7 @@ const PredictionEdit: React.FC<PredictionEditProps> = ({history, match}) => {
     const [currentLatitude, setCurrentLatitude] = useState<number | undefined>(undefined);
     const [currentLongitude, setCurrentLongitude] = useState<number | undefined>(undefined);
 
-    const location = useMyLocation();
-    const {latitude : lat, longitude : lng} = location.position?.coords || {};
+    const {latitude : lat, longitude : lng} = {latitude: 44.867612, longitude: 13.851877};
 
     const {takePhoto} = usePhotoGallery();
 
@@ -114,12 +112,13 @@ const PredictionEdit: React.FC<PredictionEditProps> = ({history, match}) => {
                     <IonLabel>Do you know geography ?</IonLabel>
                     <IonButton onClick={setLocation}>Set location</IonButton>
                 </IonItem>
+
                 {lat && lng &&
                 <MyMap
                     lat={currentLatitude}
                     lng={currentLongitude}
-                    onMapClick={(e: any) => setLatitude(e.latLng.lat())}
-                    onMarkerClick={(e: any) => setLongitude(e.latLng.lng())}
+                    onMapClick={(e: any) => onClick(e)}
+                    onMarkerClick={(e: any) => onClick(e)}
                 />
                 }
                 <IonRow style={{height: "15px"}}></IonRow>
@@ -142,6 +141,11 @@ const PredictionEdit: React.FC<PredictionEditProps> = ({history, match}) => {
             </IonContent>
         </IonPage>
     );
+
+    function onClick(e: any) {
+        setLatitude(e.latLng.lat());
+        setLongitude(e.latLng.lng());
+    }
 };
 
 export default PredictionEdit;
