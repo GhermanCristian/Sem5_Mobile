@@ -1,14 +1,14 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {RouteComponentProps} from 'react-router';
 import {
-    createAnimation,
+    createAnimation, IonButton,
     IonChip,
     IonContent,
     IonFab,
     IonFabButton,
     IonHeader,
     IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonLabel,
-    IonList, IonLoading,
+    IonList, IonLoading, IonModal,
     IonPage, IonSearchbar, IonSelect,
     IonSelectOption,
     IonTitle, IonToast,
@@ -34,6 +34,7 @@ const PredictionList: React.FC<RouteComponentProps> = ({history}) => {
     const [search, setSearch] = useState<string>("");
     const [status, setStatus] = useState<boolean>(true);
     const {savedOffline} = useContext(PredictionContext);
+    const [showModal, setShowModal] = useState(false);
 
     const driverNames = ["None", "Hamilton", "Bottas", "Verstappen", "Perez", "Sainz", "Leclerc", "Norris", "Ricciardo", "Vettel", "Stroll", "Alonso", "Ocon", "Gasly",
         "Tsunoda", "Russell", "Latifi", "Raikkonen", "Giovinazzi", "Schumacher", "Mazepin"];
@@ -87,6 +88,39 @@ const PredictionList: React.FC<RouteComponentProps> = ({history}) => {
         ($event.target as HTMLIonInfiniteScrollElement).complete();
     }
 
+    const enterAnimation = (baseEl: any) => {
+        const backdropAnimation = createAnimation()
+            .addElement(baseEl.querySelector('ion-backdrop')!)
+            .fromTo('opacity', '0.01', 'var(--backdrop-opacity)');
+
+        const wrapperAnimation = createAnimation()
+            .addElement(baseEl.querySelector('.modal-wrapper')!)
+            .keyframes([
+                { offset: 0, opacity: '0', transform: 'scale(0)' },
+                { offset: 1, opacity: '0.99', transform: 'scale(1)' }
+            ]);
+
+        return createAnimation()
+            .addElement(baseEl)
+            .easing('ease-out')
+            .duration(500)
+            .addAnimation([backdropAnimation, wrapperAnimation]);
+    }
+
+    const leaveAnimation = (baseEl: any) => {
+        return enterAnimation(baseEl).direction('reverse');
+    }
+
+    async function onAddPredictionButtonClick() {
+        setShowModal(true);
+        try {
+            await createPrediction(token);
+        }
+        catch (e) {
+            console.log(e);
+        }
+    }
+
     return (
         <IonPage>
             <IonHeader>
@@ -122,14 +156,21 @@ const PredictionList: React.FC<RouteComponentProps> = ({history}) => {
                     <IonInfiniteScrollContent loadingText="Loading..."></IonInfiniteScrollContent>
                 </IonInfiniteScroll>
 
+                <IonModal isOpen={showModal} enterAnimation={enterAnimation} leaveAnimation={leaveAnimation}>
+                    <p>A new prediction has been added</p>
+                    <IonButton onClick={() => {
+                        setShowModal(false);
+                        history.push("/");
+                    }}>Close</IonButton>
+                </IonModal>
                 <IonFab vertical="bottom" horizontal="end" slot="fixed">
-                    <IonFabButton onClick={async () => await createPrediction(token)}>
+                    <IonFabButton onClick={async () => onAddPredictionButtonClick()}>
                         <IonIcon icon={add}/>
                     </IonFabButton>
                 </IonFab>
 
                 <IonFab vertical="bottom" horizontal="start" slot="fixed">
-                    <IonFabButton onMouseOver={animateLogoutButtonOnHover} className={"logoutButton"} onClick={() => logout?.()}>
+                    <IonFabButton onMouseEnter={animateLogoutButtonOnEnter} onMouseLeave={animateLogoutButtonOnLeave} className={"logoutButton"} onClick={() => logout?.()}>
                         Logout
                     </IonFabButton>
                 </IonFab>
@@ -141,12 +182,28 @@ const PredictionList: React.FC<RouteComponentProps> = ({history}) => {
         </IonPage>
     );
 
-    function animateLogoutButtonOnHover() {
+    function animateLogoutButtonOnEnter() {
         const logoutButton = document.querySelector('.logoutButton');
         if (logoutButton) {
             const animation = createAnimation()
                 .addElement(logoutButton)
-                .duration(1000)
+                .duration(500)
+                .direction('alternate')
+                .keyframes([
+                    { offset: 0, transform: 'scale(1)', opacity: '1' },
+                    { offset: 0.5, transform: 'scale(2)', opacity: '0.5' },
+                    { offset: 1, transform: 'scale(3)', opacity: '1' }
+                ]);
+            animation.play();
+        }
+    }
+
+    function animateLogoutButtonOnLeave() {
+        const logoutButton = document.querySelector('.logoutButton');
+        if (logoutButton) {
+            const animation = createAnimation()
+                .addElement(logoutButton)
+                .duration(500)
                 .direction('alternate')
                 .keyframes([
                     { offset: 0, transform: 'scale(3)', opacity: '1' },

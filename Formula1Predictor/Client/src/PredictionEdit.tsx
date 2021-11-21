@@ -32,7 +32,7 @@ const PredictionEdit: React.FC<PredictionEditProps> = ({history, match}) => {
     const [currentLatitude, setCurrentLatitude] = useState<number | undefined>(undefined);
     const [currentLongitude, setCurrentLongitude] = useState<number | undefined>(undefined);
 
-    const {latitude : lat, longitude : lng} = {latitude: 44.867612, longitude: 13.851877};
+    const {latitude : lat, longitude : lng} = {latitude: 44.937612, longitude: 13.851877};
 
     const {takePhoto} = usePhotoGallery();
 
