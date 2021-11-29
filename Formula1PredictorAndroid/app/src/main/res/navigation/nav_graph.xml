@@ -3,26 +3,33 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/FirstFragment">
+    app:startDestination="@id/FragmentLogin">
 
     <fragment
-        android:id="@+id/FirstFragment"
-        android:name="com.ubb.formula1predictor.FirstFragment"
-        android:label="@string/first_fragment_label"
-        tools:layout="@layout/fragment_first">
+        android:id="@+id/FragmentLogin"
+        android:name="com.ubb.formula1predictor.auth.login.LoginFragment"
+        android:label="@string/login"
+        tools:layout="@layout/fragment_login" />
+
+    <!--<fragment
+        android:id="@+id/ItemListFragment"
+        android:name="com.ubb.formula1predictor.todo.items.ItemListFragment"
+        android:label="@string/item_list_fragment_label"
+        tools:layout="@layout/fragment_item_list" >
 
         <action
-            android:id="@+id/action_FirstFragment_to_SecondFragment"
-            app:destination="@id/SecondFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/SecondFragment"
-        android:name="com.ubb.formula1predictor.SecondFragment"
-        android:label="@string/second_fragment_label"
-        tools:layout="@layout/fragment_second">
+            android:id="@+id/action_ItemListFragment_to_ItemEditFragment"
+            app:destination="@id/ItemEditFragment" />
+    </fragment>-->
+
+    <!--<fragment
+        android:id="@+id/ItemEditFragment"
+        android:name="com.ubb.formula1predictor.todo.item.ItemEditFragment"
+        android:label="@string/item_edit_fragment_label"
+        tools:layout="@layout/fragment_item_edit" >
 
         <action
-            android:id="@+id/action_SecondFragment_to_FirstFragment"
-            app:destination="@id/FirstFragment" />
-    </fragment>
+            android:id="@+id/action_ItemEditFragment_to_ItemListFragment"
+            app:destination="@id/ItemListFragment" />
+    </fragment>-->
 </navigation>
