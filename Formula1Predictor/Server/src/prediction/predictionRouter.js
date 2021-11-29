@@ -70,10 +70,10 @@ predictionRouter.get('/prediction', async (context) => {
     context.response.status = 200;
 });
 
-predictionRouter.get('/prediction/:name', async (context) => {
+predictionRouter.get('/prediction/:id', async (context) => {
     const userID = context.state.user._id;
-    const predictionName = context.request.params.name;
-    const prediction = await PredictionStore.findOne({predictionName});
+    const predictionID = context.request.params.id;
+    const prediction = await PredictionStore.findOne({predictionID});
 
     if (prediction) {
         if (prediction.userID === userID) {
@@ -85,7 +85,7 @@ predictionRouter.get('/prediction/:name', async (context) => {
         }
     }
     else {
-        context.response.body = {issue: [{warning: `prediction with name ${predictionName} not found`}]};
+        context.response.body = {issue: [{warning: `prediction with ID ${predictionID} not found`}]};
         context.response.status = 404; // NOT FOUND (if you know the resource was deleted, then return 410 GONE)
     }
 });

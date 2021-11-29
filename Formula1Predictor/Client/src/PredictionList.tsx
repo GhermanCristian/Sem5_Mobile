@@ -7,7 +7,7 @@ import {
     IonFab,
     IonFabButton,
     IonHeader,
-    IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonLabel,
+    IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel,
     IonList, IonLoading, IonModal,
     IonPage, IonSearchbar, IonSelect,
     IonSelectOption,
@@ -144,7 +144,7 @@ const PredictionList: React.FC<RouteComponentProps> = ({history}) => {
                 {predictions && (
                     <IonList>
                         {visibleItems?.map(({_id, name, driverOrder, webViewPath, latitude, longitude}) =>
-                            <PredictionListItem key={_id} name={name} driverOrder={driverOrder} _id={_id} webViewPath={webViewPath} latitude={latitude} longitude={longitude}
+                            <PredictionListItem key={_id} name={name} driverOrder={driverOrder} webViewPath={webViewPath} _id={_id} latitude={latitude} longitude={longitude}
                                                 onEdit={name => history.push(`/prediction/${name}`)}/>)}
                     </IonList>
                 )}
