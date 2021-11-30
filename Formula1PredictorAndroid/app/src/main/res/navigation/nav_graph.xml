@@ -11,25 +11,25 @@
         android:label="@string/login"
         tools:layout="@layout/fragment_login" />
 
-    <!--<fragment
-        android:id="@+id/ItemListFragment"
-        android:name="com.ubb.formula1predictor.todo.items.ItemListFragment"
-        android:label="@string/item_list_fragment_label"
-        tools:layout="@layout/fragment_item_list" >
+    <fragment
+        android:id="@+id/PredictionListFragment"
+        android:name="com.ubb.formula1predictor.prediction.predictions.PredictionListFragment"
+        android:label="@string/prediction_list_fragment_label"
+        tools:layout="@layout/fragment_prediction_list" >
 
         <action
-            android:id="@+id/action_ItemListFragment_to_ItemEditFragment"
-            app:destination="@id/ItemEditFragment" />
-    </fragment>-->
+            android:id="@+id/action_PredictionListFragment_to_PredictionEditFragment"
+            app:destination="@id/PredictionEditFragment" />
+    </fragment>
 
-    <!--<fragment
-        android:id="@+id/ItemEditFragment"
-        android:name="com.ubb.formula1predictor.todo.item.ItemEditFragment"
-        android:label="@string/item_edit_fragment_label"
-        tools:layout="@layout/fragment_item_edit" >
+    <fragment
+        android:id="@+id/PredictionEditFragment"
+        android:name="com.ubb.formula1predictor.prediction.prediction.PredictionEditFragment"
+        android:label="@string/prediction_edit_fragment_label"
+        tools:layout="@layout/fragment_prediction_edit" >
 
         <action
-            android:id="@+id/action_ItemEditFragment_to_ItemListFragment"
-            app:destination="@id/ItemListFragment" />
-    </fragment>-->
+            android:id="@+id/action_PredictionEditFragment_to_PredictionListFragment"
+            app:destination="@id/PredictionListFragment" />
+    </fragment>
 </navigation>

@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Formula1PredictorAndroid</string>
     <string name="action_settings">Settings</string>
-    <string name="item_list_fragment_label">Item List</string>
-    <string name="item_edit_fragment_label">Item Edit</string>
+    <string name="prediction_list_fragment_label">Prediction List</string>
+    <string name="prediction_edit_fragment_label">Prediction Edit</string>
     <string name="login">Login</string>
     <string name="username">Username</string>
     <string name="invalid_username">Not a valid username</string>
