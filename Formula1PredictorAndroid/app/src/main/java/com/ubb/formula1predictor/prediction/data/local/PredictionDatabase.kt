@@ -55,5 +55,4 @@ abstract class PredictionDatabase : RoomDatabase() {
 //            itemDao.insert(item)
         }
     }
-
 }

@@ -20,7 +20,8 @@ object RemoteAuthDataSource {
     suspend fun login(user: User): Result<TokenHolder> {
         try {
             return Result.Success(authService.login(user))
-        } catch (e: Exception) {
+        }
+        catch (e: Exception) {
             return Result.Error(e)
         }
     }

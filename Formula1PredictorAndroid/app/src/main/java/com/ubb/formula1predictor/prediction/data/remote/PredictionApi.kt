@@ -6,7 +6,7 @@ import retrofit2.http.*
 
 object PredictionApi {
     interface Service {
-        @GET("/api/predictions")
+        @GET("/api/prediction")
         suspend fun find(): List<Prediction>
 
         @GET("/api/prediction/{id}")
