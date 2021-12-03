@@ -23,7 +23,7 @@ class PredictionListFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         Log.i(TAG, "onCreateView")
         _binding = FragmentPredictionListBinding.inflate(inflater, container, false)
         return binding.root

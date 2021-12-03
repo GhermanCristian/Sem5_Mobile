@@ -11,7 +11,7 @@ import retrofit2.http.POST
 object RemoteAuthDataSource {
     interface AuthService {
         @Headers("Content-Type: application/json")
-        @POST("/api/auth/login")
+        @POST("/auth/login")
         suspend fun login(@Body user: User): TokenHolder
     }
 

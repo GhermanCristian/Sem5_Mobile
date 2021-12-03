@@ -14,7 +14,7 @@
         android:visibility="gone" />
 
     <EditText
-        android:id="@+id/prediction_text"
+        android:id="@+id/prediction_name"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:text="" />

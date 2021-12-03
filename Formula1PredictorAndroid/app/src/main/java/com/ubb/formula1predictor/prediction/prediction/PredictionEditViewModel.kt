@@ -43,7 +43,7 @@ class PredictionEditViewModel(application: Application) : AndroidViewModel(appli
             if (prediction._id.isNotEmpty()) {
                 result = predictionRepository.update(prediction)
             } else {
-                result = predictionRepository.save(prediction)
+                result = predictionRepository.save()
             }
             when(result) {
                 is Result.Success -> {

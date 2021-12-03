@@ -25,9 +25,9 @@ class PredictionRepository(private val predictionDao: PredictionDao) {
         return predictionDao.getById(predictionId)
     }
 
-    suspend fun save(prediction: Prediction): Result<Prediction> {
+    suspend fun save(): Result<Prediction> {
         try {
-            val createdPrediction = PredictionApi.service.create(prediction)
+            val createdPrediction = PredictionApi.service.create()
             predictionDao.insert(createdPrediction)
             return Result.Success(createdPrediction)
         } catch (e: Exception) {

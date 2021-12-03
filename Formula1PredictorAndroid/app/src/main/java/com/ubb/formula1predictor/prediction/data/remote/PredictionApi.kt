@@ -6,19 +6,19 @@ import retrofit2.http.*
 
 object PredictionApi {
     interface Service {
-        @GET("/api/prediction")
+        @GET("/pred/prediction")
         suspend fun find(): List<Prediction>
 
-        @GET("/api/prediction/{id}")
-        suspend fun read(@Path("id") itemId: String): Prediction;
+        @GET("/pred/prediction/{id}")
+        suspend fun read(@Path("id") predictionId: String): Prediction;
 
         @Headers("Content-Type: application/json")
-        @POST("/api/prediction")
-        suspend fun create(@Body item: Prediction): Prediction
+        @POST("/pred/prediction")
+        suspend fun create(): Prediction
 
         @Headers("Content-Type: application/json")
-        @PUT("/api/prediction/{id}")
-        suspend fun update(@Path("id") itemId: String, @Body item: Prediction): Prediction
+        @PUT("/pred/prediction/{id}")
+        suspend fun update(@Path("id") predictionId: String, @Body prediction: Prediction): Prediction
     }
 
     val service: Service = Api.retrofit.create(Service::class.java)

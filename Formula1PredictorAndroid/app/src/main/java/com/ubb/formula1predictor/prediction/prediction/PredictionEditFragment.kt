@@ -29,7 +29,7 @@ class PredictionEditFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         Log.i(TAG, "onCreateView")
         arguments?.let {
             if (it.containsKey(PREDICTION_ID)) {
@@ -48,11 +48,11 @@ class PredictionEditFragment : Fragment() {
             Log.v(TAG, "save prediction")
             val i = prediction
             if (i != null) {
-                i.text = binding.predictionText.text.toString()
+                i.name = binding.predictionName.text.toString()
                 viewModel.saveOrUpdatePrediction(i)
             }
         }
-        binding.predictionText.setText(predictionId)
+        binding.predictionName.setText(predictionId)
     }
 
     override fun onDestroyView() {
@@ -85,13 +85,13 @@ class PredictionEditFragment : Fragment() {
         })
         val id = predictionId
         if (id == null) {
-            prediction = Prediction("", "")
+            prediction = Prediction("", "", arrayListOf(""))
         } else {
             viewModel.getPredictionById(id).observe(viewLifecycleOwner, {
                 Log.v(TAG, "update predictions")
                 if (it != null) {
                     prediction = it
-                    binding.predictionText.setText(it.text)
+                    binding.predictionName.setText(it.name)
                 }
             })
         }

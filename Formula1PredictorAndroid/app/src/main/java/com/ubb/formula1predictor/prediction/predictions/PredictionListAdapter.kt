@@ -29,7 +29,7 @@ class PredictionListAdapter(
         fragment.findNavController().navigate(R.id.PredictionEditFragment, Bundle().apply {
             putString(PredictionEditFragment.PREDICTION_ID, prediction._id)
         })
-    };
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -41,7 +41,7 @@ class PredictionListAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         Log.v(TAG, "onBindViewHolder $position")
         val prediction = predictions[position]
-        holder.textView.text = prediction.text
+        holder.textView.text = prediction.name
         holder.itemView.tag = prediction
         holder.itemView.setOnClickListener(onPredictionClick)
     }

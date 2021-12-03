@@ -6,7 +6,7 @@ import com.ubb.formula1predictor.prediction.data.Prediction
 
 @Dao
 interface PredictionDao {
-    @Query("SELECT * from predictions ORDER BY text ASC")
+    @Query("SELECT * from predictions ORDER BY name ASC")
     fun getAll(): LiveData<List<Prediction>>
 
     @Query("SELECT * FROM predictions WHERE _id=:id")
