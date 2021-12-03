@@ -92,6 +92,7 @@ class PredictionEditFragment : Fragment() {
                 if (it != null) {
                     prediction = it
                     binding.predictionName.setText(it.name)
+                    binding.driverOrder.setText(it.driverOrder.toString())
                 }
             })
         }
