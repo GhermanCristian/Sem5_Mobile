@@ -18,6 +18,7 @@ class PredictionEditFragment : Fragment() {
         const val PREDICTION_ID = "PREDICTION_ID"
     }
 
+    private lateinit var driverOrderAdapter: DriverOrderAdapter
     private lateinit var viewModel: PredictionEditViewModel
     private var predictionId: String? = null
     private var prediction: Prediction? = null
@@ -52,7 +53,6 @@ class PredictionEditFragment : Fragment() {
                 viewModel.saveOrUpdatePrediction(i)
             }
         }
-        binding.predictionName.setText(predictionId)
     }
 
     override fun onDestroyView() {
@@ -62,6 +62,8 @@ class PredictionEditFragment : Fragment() {
     }
 
     private fun setupViewModel() {
+        driverOrderAdapter = DriverOrderAdapter()
+        binding.driverOrder.adapter = driverOrderAdapter
         viewModel = ViewModelProvider(this).get(PredictionEditViewModel::class.java)
         viewModel.fetching.observe(viewLifecycleOwner, { fetching ->
             Log.v(TAG, "update fetching")
@@ -86,13 +88,14 @@ class PredictionEditFragment : Fragment() {
         val id = predictionId
         if (id == null) {
             prediction = Prediction("", "", arrayListOf(""))
-        } else {
+        }
+        else {
             viewModel.getPredictionById(id).observe(viewLifecycleOwner, {
                 Log.v(TAG, "update predictions")
                 if (it != null) {
                     prediction = it
                     binding.predictionName.setText(it.name)
-                    binding.driverOrder.setText(it.driverOrder.toString())
+                    driverOrderAdapter.driverOrder = it.driverOrder
                 }
             })
         }
