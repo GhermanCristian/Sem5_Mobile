@@ -37,4 +37,15 @@ class DriverOrderAdapter : RecyclerView.Adapter<DriverOrderAdapter.ViewHolder>()
     }
 
     override fun getItemCount(): Int = driverOrder.size
+
+    fun moveItem(fromPosition: Int, toPosition: Int) {
+        val fromItem = driverOrder[fromPosition]
+        driverOrder.removeAt(fromPosition)
+        if (toPosition < fromPosition) {
+            driverOrder.add(toPosition, fromItem)
+        }
+        else {
+            driverOrder.add(toPosition, fromItem)
+        }
+    }
 }

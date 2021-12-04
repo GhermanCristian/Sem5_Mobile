@@ -9,6 +9,8 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.ubb.formula1predictor.core.TAG
 import com.ubb.formula1predictor.databinding.FragmentPredictionEditBinding
 import com.ubb.formula1predictor.prediction.data.Prediction
@@ -23,9 +25,16 @@ class PredictionEditFragment : Fragment() {
     private var predictionId: String? = null
     private var prediction: Prediction? = null
 
-    private var _binding: FragmentPredictionEditBinding? = null
+    private lateinit var binding: FragmentPredictionEditBinding
 
-    private val binding get() = _binding!!
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Log.i(TAG, "onCreate")
+        binding = FragmentPredictionEditBinding.inflate(layoutInflater)
+        itemTouchHelper.attachToRecyclerView(binding.driverOrder)
+        driverOrderAdapter = DriverOrderAdapter()
+        binding.driverOrder.adapter = driverOrderAdapter
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,7 +46,6 @@ class PredictionEditFragment : Fragment() {
                 predictionId = it.getString(PREDICTION_ID).toString()
             }
         }
-        _binding = FragmentPredictionEditBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -57,13 +65,10 @@ class PredictionEditFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
         Log.i(TAG, "onDestroyView")
     }
 
     private fun setupViewModel() {
-        driverOrderAdapter = DriverOrderAdapter()
-        binding.driverOrder.adapter = driverOrderAdapter
         viewModel = ViewModelProvider(this).get(PredictionEditViewModel::class.java)
         viewModel.fetching.observe(viewLifecycleOwner, { fetching ->
             Log.v(TAG, "update fetching")
@@ -99,5 +104,26 @@ class PredictionEditFragment : Fragment() {
                 }
             })
         }
+    }
+
+    private val itemTouchHelper by lazy {
+        val itemTouchCallback = object: ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                val recyclerviewAdapter = recyclerView.adapter as DriverOrderAdapter
+                val fromPosition = viewHolder.adapterPosition
+                val toPosition = target.adapterPosition
+                recyclerviewAdapter.moveItem(fromPosition, toPosition)
+                recyclerviewAdapter.notifyItemMoved(fromPosition,toPosition)
+                return true
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
+        }
+
+        ItemTouchHelper(itemTouchCallback)
     }
 }
