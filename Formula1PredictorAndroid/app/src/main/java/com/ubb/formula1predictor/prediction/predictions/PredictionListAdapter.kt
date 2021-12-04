@@ -1,5 +1,6 @@
 package com.ubb.formula1predictor.prediction.predictions
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -21,7 +22,7 @@ class PredictionListAdapter(
     var predictions = emptyList<Prediction>()
         set(value) {
             field = value
-            notifyDataSetChanged();
+            notifyDataSetChanged()
         }
 
     private var onPredictionClick: View.OnClickListener = View.OnClickListener { view ->
@@ -38,10 +39,11 @@ class PredictionListAdapter(
         return ViewHolder(view)
     }
 
+    @SuppressLint("SetTextI18n")  // some warning when setting the text
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         Log.v(TAG, "onBindViewHolder $position")
         val prediction = predictions[position]
-        holder.textView.text = prediction.name
+        holder.textView.text = "${prediction.name} -> ${prediction.driverOrder[0]}"
         holder.itemView.tag = prediction
         holder.itemView.setOnClickListener(onPredictionClick)
     }
