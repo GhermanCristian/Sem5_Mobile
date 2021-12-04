@@ -16,10 +16,6 @@
         android:name="com.ubb.formula1predictor.prediction.predictions.PredictionListFragment"
         android:label="@string/prediction_list_fragment_label"
         tools:layout="@layout/fragment_prediction_list" >
-
-        <action
-            android:id="@+id/action_PredictionListFragment_to_PredictionEditFragment"
-            app:destination="@id/PredictionEditFragment" />
     </fragment>
 
     <fragment

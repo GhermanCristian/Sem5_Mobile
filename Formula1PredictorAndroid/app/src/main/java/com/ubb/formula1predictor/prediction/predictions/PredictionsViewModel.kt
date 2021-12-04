@@ -29,6 +29,24 @@ class PredictionListViewModel(application: Application) : AndroidViewModel(appli
         predictions = predictionRepository.predictions
     }
 
+    fun addNewPrediction() {
+        viewModelScope.launch {
+            Log.v(TAG, "add new prediction")
+            mutableLoading.value = true
+            mutableException.value = null
+            when (val result = predictionRepository.save()) {
+                is Result.Success -> {
+                    Log.d(TAG, "add prediction succeeded")
+                }
+                is Result.Error -> {
+                    Log.w(TAG, "add prediction failed", result.exception)
+                    mutableException.value = result.exception
+                }
+            }
+            mutableLoading.value = false
+        }
+    }
+
     fun refresh() {
         viewModelScope.launch {
             Log.v(TAG, "refresh...")

@@ -38,8 +38,8 @@ class PredictionListFragment : Fragment() {
         }
         setupPredictionList()
         binding.fab.setOnClickListener {
-            Log.v(TAG, "add new prediction")
-            findNavController().navigate(R.id.PredictionEditFragment)
+            predictionsModel.addNewPrediction()
+            predictionsModel.refresh()
         }
     }
 
