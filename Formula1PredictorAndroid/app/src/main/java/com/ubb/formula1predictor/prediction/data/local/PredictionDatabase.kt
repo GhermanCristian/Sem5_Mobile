@@ -5,11 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.ubb.formula1predictor.prediction.data.Prediction
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 @Database(entities = [Prediction::class], version = 1)
 @TypeConverters(Converters::class)
@@ -21,40 +17,15 @@ abstract class PredictionDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: PredictionDatabase? = null
 
-        fun getDatabase(context: Context, scope: CoroutineScope): PredictionDatabase {
+        fun getDatabase(context: Context): PredictionDatabase {
             val inst = INSTANCE
             if (inst != null) {
                 return inst
             }
-            val instance =
-                Room.databaseBuilder(
-                    context.applicationContext,
-                    PredictionDatabase::class.java,
-                    "prediction_db"
-                )
-                    .addCallback(WordDatabaseCallback(scope))
-                    .build()
+            val instance = Room.databaseBuilder(context.applicationContext, PredictionDatabase::class.java, "prediction_db")
+                                .build()
             INSTANCE = instance
             return instance
-        }
-
-        private class WordDatabaseCallback(private val scope: CoroutineScope) :
-            RoomDatabase.Callback() {
-
-            override fun onOpen(db: SupportSQLiteDatabase) {
-                super.onOpen(db)
-                INSTANCE?.let { database ->
-                    scope.launch(Dispatchers.IO) {
-                        populateDatabase(database.predictionDao())
-                    }
-                }
-            }
-        }
-
-        suspend fun populateDatabase(itemDao: PredictionDao) {
-//            itemDao.deleteAll()
-//            val item = Item("1", "Hello")
-//            itemDao.insert(item)
         }
     }
 }

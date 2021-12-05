@@ -12,6 +12,7 @@ import com.ubb.formula1predictor.core.TAG
 
 class DriverOrderAdapter : RecyclerView.Adapter<DriverOrderAdapter.ViewHolder>() {
     var driverOrder = arrayListOf<String>()
+        @SuppressLint("NotifyDataSetChanged")
         set(value) {
             field = value
             notifyDataSetChanged()

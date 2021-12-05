@@ -22,10 +22,10 @@ class PredictionEditViewModel(application: Application) : AndroidViewModel(appli
     val fetchingError: LiveData<Exception> = mutableException
     val completed: LiveData<Boolean> = mutableCompleted
 
-    val predictionRepository: PredictionRepository
+    private val predictionRepository: PredictionRepository
 
     init {
-        val predictionDao = PredictionDatabase.getDatabase(application, viewModelScope).predictionDao()
+        val predictionDao = PredictionDatabase.getDatabase(application).predictionDao()
         predictionRepository = PredictionRepository(predictionDao)
     }
 
@@ -39,11 +39,10 @@ class PredictionEditViewModel(application: Application) : AndroidViewModel(appli
             Log.v(TAG, "saveOrUpdatePrediction...")
             mutableFetching.value = true
             mutableException.value = null
-            val result: Result<Prediction>
-            if (prediction._id.isNotEmpty()) {
-                result = predictionRepository.update(prediction)
+            val result: Result<Prediction> = if (prediction._id.isNotEmpty()) {
+                predictionRepository.update(prediction)
             } else {
-                result = predictionRepository.save()
+                predictionRepository.save()
             }
             when(result) {
                 is Result.Success -> {

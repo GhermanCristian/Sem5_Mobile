@@ -9,9 +9,6 @@ object PredictionApi {
         @GET("/pred/prediction")
         suspend fun find(): List<Prediction>
 
-        @GET("/pred/prediction/{id}")
-        suspend fun read(@Path("id") predictionId: String): Prediction;
-
         @Headers("Content-Type: application/json")
         @POST("/pred/prediction")
         suspend fun create(): Prediction

@@ -34,7 +34,7 @@ class PredictionListFragment : Fragment() {
         Log.i(TAG, "onViewCreated")
         if (!AuthRepository.isLoggedIn) {
             findNavController().navigate(R.id.FragmentLogin)
-            return;
+            return
         }
         setupPredictionList()
         binding.fab.setOnClickListener {

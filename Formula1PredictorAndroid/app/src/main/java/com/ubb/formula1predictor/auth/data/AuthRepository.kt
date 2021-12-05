@@ -5,8 +5,7 @@ import com.ubb.formula1predictor.core.Api
 import com.ubb.formula1predictor.core.Result
 
 object AuthRepository {
-    var user: User? = null
-        private set
+    private var user: User? = null
 
     val isLoggedIn: Boolean
         get() = user != null
@@ -15,6 +14,7 @@ object AuthRepository {
         user = null
     }
 
+    //TODO - implement logout button
     fun logout() {
         user = null
         Api.tokenInterceptor.token = null

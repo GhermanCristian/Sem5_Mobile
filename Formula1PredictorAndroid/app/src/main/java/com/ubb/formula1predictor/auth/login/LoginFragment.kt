@@ -1,5 +1,6 @@
 package com.ubb.formula1predictor.auth.login
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -24,7 +25,7 @@ class LoginFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         Log.i(TAG, "onCreateView")
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
         return binding.root
@@ -43,6 +44,7 @@ class LoginFragment : Fragment() {
         _binding = null
     }
 
+    @SuppressLint("SetTextI18n") // some warning when setting the text
     private fun setupLoginForm() {
         viewModel.loginFormState.observe(viewLifecycleOwner, { loginState ->
             binding.login.isEnabled = loginState.isDataValid
@@ -57,7 +59,8 @@ class LoginFragment : Fragment() {
             binding.loading.visibility = View.GONE
             if (loginResult is Result.Success<*>) {
                 findNavController().navigate(R.id.PredictionListFragment)
-            } else if (loginResult is Result.Error) {
+            }
+            else if (loginResult is Result.Error) {
                 binding.errorText.text = "Login error ${loginResult.exception.message}"
                 binding.errorText.visibility = View.VISIBLE
             }

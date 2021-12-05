@@ -10,14 +10,14 @@ class PredictionRepository(private val predictionDao: PredictionDao) {
     val predictions = predictionDao.getAll()
 
     suspend fun refresh(): Result<Boolean> {
-        try {
+        return try {
             val predictions = PredictionApi.service.find()
             for (prediction in predictions) {
                 predictionDao.insert(prediction)
             }
-            return Result.Success(true)
+            Result.Success(true)
         } catch (e: Exception) {
-            return Result.Error(e)
+            Result.Error(e)
         }
     }
 
@@ -26,22 +26,22 @@ class PredictionRepository(private val predictionDao: PredictionDao) {
     }
 
     suspend fun save(): Result<Prediction> {
-        try {
+        return try {
             val createdPrediction = PredictionApi.service.create()
             predictionDao.insert(createdPrediction)
-            return Result.Success(createdPrediction)
+            Result.Success(createdPrediction)
         } catch (e: Exception) {
-            return Result.Error(e)
+            Result.Error(e)
         }
     }
 
     suspend fun update(prediction: Prediction): Result<Prediction> {
-        try {
+        return try {
             val updatedPrediction = PredictionApi.service.update(prediction._id, prediction)
             predictionDao.update(updatedPrediction)
-            return Result.Success(updatedPrediction)
+            Result.Success(updatedPrediction)
         } catch (e: Exception) {
-            return Result.Error(e)
+            Result.Error(e)
         }
     }
 }

@@ -20,6 +20,7 @@ class PredictionListAdapter(
 ) : RecyclerView.Adapter<PredictionListAdapter.ViewHolder>() {
 
     var predictions = emptyList<Prediction>()
+        @SuppressLint("NotifyDataSetChanged")
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -51,10 +52,7 @@ class PredictionListAdapter(
     override fun getItemCount() = predictions.size
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val textView: TextView
+        val textView: TextView = view.findViewById(R.id.text)
 
-        init {
-            textView = view.findViewById(R.id.text)
-        }
     }
 }

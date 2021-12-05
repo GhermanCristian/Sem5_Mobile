@@ -21,10 +21,10 @@ class PredictionListViewModel(application: Application) : AndroidViewModel(appli
     val loading: LiveData<Boolean> = mutableLoading
     val loadingError: LiveData<Exception> = mutableException
 
-    val predictionRepository: PredictionRepository
+    private val predictionRepository: PredictionRepository
 
     init {
-        val predictionDao = PredictionDatabase.getDatabase(application, viewModelScope).predictionDao()
+        val predictionDao = PredictionDatabase.getDatabase(application).predictionDao()
         predictionRepository = PredictionRepository(predictionDao)
         predictions = predictionRepository.predictions
     }

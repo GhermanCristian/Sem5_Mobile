@@ -18,11 +18,11 @@ object RemoteAuthDataSource {
     private val authService: AuthService = Api.retrofit.create(AuthService::class.java)
 
     suspend fun login(user: User): Result<TokenHolder> {
-        try {
-            return Result.Success(authService.login(user))
+        return try {
+            Result.Success(authService.login(user))
         }
         catch (e: Exception) {
-            return Result.Error(e)
+            Result.Error(e)
         }
     }
 }
