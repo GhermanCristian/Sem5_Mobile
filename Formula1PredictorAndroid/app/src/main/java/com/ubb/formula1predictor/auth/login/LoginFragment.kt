@@ -58,7 +58,7 @@ class LoginFragment : Fragment() {
         viewModel.loginResult.observe(viewLifecycleOwner, { loginResult ->
             binding.loading.visibility = View.GONE
             if (loginResult is Result.Success<*>) {
-                findNavController().navigate(R.id.PredictionListFragment)
+                findNavController().navigate(R.id.action_FragmentLogin_to_PredictionListFragment)
             }
             else if (loginResult is Result.Error) {
                 binding.errorText.text = "Login error ${loginResult.exception.message}"

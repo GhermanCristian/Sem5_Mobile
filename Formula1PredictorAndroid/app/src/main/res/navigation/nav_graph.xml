@@ -9,7 +9,13 @@
         android:id="@+id/FragmentLogin"
         android:name="com.ubb.formula1predictor.auth.login.LoginFragment"
         android:label="@string/login"
-        tools:layout="@layout/fragment_login" />
+        tools:layout="@layout/fragment_login" >
+        <action
+            android:id="@+id/action_FragmentLogin_to_PredictionListFragment"
+            app:destination="@id/PredictionListFragment"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"/>
+    </fragment>
 
     <fragment
         android:id="@+id/PredictionListFragment"
