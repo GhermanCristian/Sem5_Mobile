@@ -64,4 +64,14 @@ class PredictionListViewModel(application: Application) : AndroidViewModel(appli
             mutableLoading.value = false
         }
     }
+
+    fun sendLocalChangesToServer() {
+        viewModelScope.launch {
+            Log.v(TAG, "sending local changes to the server...")
+            mutableLoading.value = true
+            mutableException.value = null
+            predictionRepository.sendLocalChangesToServer()
+            mutableLoading.value = false
+        }
+    }
 }

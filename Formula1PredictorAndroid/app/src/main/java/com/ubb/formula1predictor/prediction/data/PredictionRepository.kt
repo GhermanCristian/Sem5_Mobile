@@ -50,4 +50,10 @@ class PredictionRepository(private val predictionDao: PredictionDao) {
             }
         }
     }
+
+    suspend fun sendLocalChangesToServer() {
+        predictions.value?.forEach {
+            PredictionApi.service.update(it._id, it)
+        }
+    }
 }
