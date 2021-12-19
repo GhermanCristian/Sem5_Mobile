@@ -38,10 +38,16 @@ class PredictionRepository(private val predictionDao: PredictionDao) {
     suspend fun update(prediction: Prediction): Result<Prediction> {
         return try {
             val updatedPrediction = PredictionApi.service.update(prediction._id, prediction)
-            predictionDao.update(updatedPrediction)
             Result.Success(updatedPrediction)
-        } catch (e: Exception) {
-            Result.Error(e)
+        }
+        catch (e: Exception) {
+            try {
+                predictionDao.update(prediction)
+                Result.Success(prediction)
+            }
+            catch (e: Exception) {
+                Result.Error(e)
+            }
         }
     }
 }
