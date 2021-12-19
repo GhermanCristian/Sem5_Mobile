@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.ubb.formula1predictor.R
 import com.ubb.formula1predictor.core.TAG
 import com.ubb.formula1predictor.databinding.FragmentPredictionEditBinding
 import com.ubb.formula1predictor.prediction.data.Prediction
@@ -87,7 +88,7 @@ class PredictionEditFragment : Fragment() {
         viewModel.completed.observe(viewLifecycleOwner, { completed ->
             if (completed) {
                 Log.v(TAG, "completed, navigate back")
-                findNavController().navigateUp()
+                findNavController().navigate(R.id.action_PredictionEditFragment_to_PredictionListFragment)
             }
         })
         val id = predictionId

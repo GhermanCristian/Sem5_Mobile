@@ -28,7 +28,7 @@ class PredictionListAdapter(
 
     private var onPredictionClick: View.OnClickListener = View.OnClickListener { view ->
         val prediction = view.tag as Prediction
-        fragment.findNavController().navigate(R.id.PredictionEditFragment, Bundle().apply {
+        fragment.findNavController().navigate(R.id.action_PredictionListFragment_to_PredictionEditFragment, Bundle().apply {
             putString(PredictionEditFragment.PREDICTION_ID, prediction._id)
         })
     }
