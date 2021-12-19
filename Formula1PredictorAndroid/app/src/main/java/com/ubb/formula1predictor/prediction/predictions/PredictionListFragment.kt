@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
 import com.ubb.formula1predictor.R
 import com.ubb.formula1predictor.auth.data.AuthRepository
 import com.ubb.formula1predictor.core.TAG
@@ -39,6 +40,8 @@ class PredictionListFragment : Fragment() {
         setupPredictionList()
         binding.fab.setOnClickListener {
             predictionsModel.addNewPrediction()
+            Snackbar.make(view, "Added a new prediction", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show()
             predictionsModel.refresh()
         }
     }
