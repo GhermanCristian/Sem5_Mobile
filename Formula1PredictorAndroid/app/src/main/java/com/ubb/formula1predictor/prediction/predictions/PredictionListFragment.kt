@@ -1,6 +1,10 @@
 package com.ubb.formula1predictor.prediction.predictions
 
 import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.net.*
 import android.os.Build
 import android.os.Bundle
@@ -19,13 +23,16 @@ import com.ubb.formula1predictor.auth.data.AuthRepository
 import com.ubb.formula1predictor.core.TAG
 import com.ubb.formula1predictor.databinding.FragmentPredictionListBinding
 
-class PredictionListFragment : Fragment() {
+class PredictionListFragment : Fragment(), SensorEventListener {
     private var _binding: FragmentPredictionListBinding? = null
     private lateinit var predictionListAdapter: PredictionListAdapter
     private lateinit var predictionsModel: PredictionListViewModel
     private lateinit var connectivityManager: ConnectivityManager
     private lateinit var connectivityLiveData: ConnectivityLiveData
     private val binding get() = _binding!!
+
+    private lateinit var sensorManager: SensorManager
+    private var light: Sensor? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +41,9 @@ class PredictionListFragment : Fragment() {
         connectivityLiveData.observe(this, {
             Log.d(TAG, "connectivityLiveData $it")
         })
+
+        sensorManager = activity?.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        light = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT)
     }
 
     override fun onStart() {
@@ -128,4 +138,27 @@ class PredictionListFragment : Fragment() {
             Log.d(TAG, "The default network changed link properties: $linkProperties")
         }
     }
+
+    override fun onSensorChanged(event: SensorEvent?) {
+        Log.d(TAG, "onSensorChanged ${event?.values?.get(0)}")
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+        Log.d(TAG, "onAccuracyChanged $accuracy - for sensor $sensor")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        light?.also {
+            sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
+            Log.d(TAG, "registerListener $it")
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        sensorManager.unregisterListener(this)
+        Log.d(TAG, "unregisterListener $this")
+    }
+
 }
