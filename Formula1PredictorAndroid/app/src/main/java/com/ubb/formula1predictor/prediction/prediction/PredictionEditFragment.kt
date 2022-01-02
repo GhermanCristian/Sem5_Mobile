@@ -1,5 +1,6 @@
 package com.ubb.formula1predictor.prediction.prediction
 
+import android.animation.ObjectAnimator
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -61,6 +62,15 @@ class PredictionEditFragment : Fragment() {
                 i.name = binding.predictionName.text.toString()
                 viewModel.saveOrUpdatePrediction(i)
             }
+        }
+
+        changeViewPositionByObjectAnimator()
+    }
+
+    private fun changeViewPositionByObjectAnimator() {
+        ObjectAnimator.ofFloat(view, "translationX", 100f).apply {
+            duration = 5000
+            start()
         }
     }
 
